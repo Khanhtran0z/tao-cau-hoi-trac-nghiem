@@ -1,4 +1,3 @@
-
 <!DOCTYPE html><html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -13,88 +12,29 @@
       --text-color: #333;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      width: 100%; max-width: 600px;
-      overflow: hidden;
-      position: relative;
-    }
-    header, .content { padding: 20px; }
-    header {
-      background: var(--primary-color);
-      color: #fff;
-      text-align: center;
-    }
-    h1 { font-size: 1.8rem; margin-bottom: 10px; }
+    html, body { width: 100%; height: 100%; font-family: 'Roboto', sans-serif; background: var(--bg-color); color: var(--text-color); }
+    body { display: flex; justify-content: center; align-items: center; }
+    .container { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); width: 100vw; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; position: relative; }
+    header, .content { padding: 20px; flex-shrink: 0; }
+    header { background: var(--primary-color); color: #fff; text-align: center; }
+    h1 { font-size: 2rem; }
     .question-card { margin-bottom: 20px; }
-    .options button {
-      display: block;
-      width: 100%;
-      margin: 8px 0;
-      padding: 12px;
-      border: 2px solid var(--primary-color);
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background .3s, color .3s;
-    }
+    .options button { display: block; width: 100%; margin: 8px 0; padding: 12px; border: 2px solid var(--primary-color); border-radius: 8px; background: #fff; cursor: pointer; font-size: 1rem; transition: background .3s, color .3s; }
     .options button:hover { background: var(--primary-color); color: #fff; }
     .options button.correct { background: #28a745; color: #fff; border-color: #28a745; }
     .options button.wrong { background: #dc3545; color: #fff; border-color: #dc3545; }
     .hide { display: none; }
-    .settings {
-      position: absolute; top: 20px; right: 20px;
-      cursor: pointer; font-size: 1.2rem;
-      color: #666;
-    }
-    .settings-panel {
-      position: fixed; top: 60px; right: 20px;
-      background: #fff; padding: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border-radius: 8px;
-      display: none;
-      z-index: 10;
-      width: 220px;
-    }
+    .settings { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 1.2rem; color: #666; }
+    .settings-panel { position: absolute; top: 60px; right: 20px; background: #fff; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; display: none; z-index: 10; width: 240px; }
     .settings-panel label { display: block; margin-bottom: 8px; font-weight: 500; }
-    .settings-panel input[type="color"],
-    .settings-panel input[type="checkbox"] {
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-    button {
-      border: none; border-radius: 8px;
-      font-size: 1rem; cursor: pointer;
-    }
-    #toggleSetupBtn {
-      margin-left: 10px;
-      background: #f6c23e; color: #fff;
-      padding: 12px 20px;
-      transition: background .3s;
-    }
+    .settings-panel input[type="color"], .settings-panel input[type="checkbox"] { margin-right: 6px; vertical-align: middle; }
+    .content { flex: 1; overflow-y: auto; }
+    input, select, button, textarea { font-size: 1rem; }
+    input[type="text"], select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+    button { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; }
+    #startBtn, #restartBtn, #addQuestionBtn { background: var(--primary-color); color: #fff; }
+    #toggleSetupBtn { background: #f6c23e; color: #fff; }
     #toggleSetupBtn:hover { background: #dda20a; }
-    #setupScreen input, #setupScreen select {
-      width: 100%; padding: 10px;
-      margin: 6px 0; border: 1px solid #ccc;
-      border-radius: 6px; font-size: 1rem;
-    }
-    #setupScreen button, #startBtn, #restartBtn {
-      background: var(--primary-color); color: #fff;
-      padding: 12px 20px; margin-top: 8px;
-    }
   </style>
 </head>
 <body>
@@ -105,31 +45,42 @@
     <label><input type="checkbox" id="chkSpell" checked> Sửa chính tả</label>
     <label for="themeColor">Màu chủ đạo:</label>
     <input type="color" id="themeColor" value="#4e73df">
-  </div>  <div class="container" id="quizApp">
+  </div>
+  <div class="container" id="quizApp">
     <header><h1>Hệ Thống Trắc Nghiệm</h1></header>
     <div class="content" id="startScreen">
       <h2>Chào mừng!</h2>
       <p>Nhập tên và xây đề trắc nghiệm:</p>
-      <input type="text" id="participantName" placeholder="Tên của bạn">
-      <div style="margin-top: 12px;">
+      <input type="text" id="participantName" placeholder="Tên của bạn" spellcheck>
+      <div>
         <button id="startBtn">Bắt đầu</button>
         <button id="toggleSetupBtn">Chỉnh sửa đề</button>
       </div>
       <div id="setupScreen" class="hide">
-        <h3>Nhập đề trắc nghiệm</h3>
-        <input type="text" id="inputQuestion" placeholder="Câu hỏi">
-        <input type="text" id="inputOption0" placeholder="Đáp án A">
-        <input type="text" id="inputOption1" placeholder="Đáp án B">
-        <input type="text" id="inputOption2" placeholder="Đáp án C">
-        <input type="text" id="inputOption3" placeholder="Đáp án D">
-        <label for="inputCorrect">Đáp án đúng:</label>
-        <select id="inputCorrect">
-          <option value="0">A</option>
-          <option value="1">B</option>
-          <option value="2">C</option>
-          <option value="3">D</option>
-        </select>
-        <button id="addQuestionBtn">Thêm câu hỏi</button>
+        <h3>Chọn chế độ nhập đề:</h3>
+        <label><input type="radio" name="inputMode" value="structured" checked> Nhập thủ công</label>
+        <label><input type="radio" name="inputMode" value="bulk"> Nhập nhanh</label>
+        <div id="structuredInputs">
+          <h4>Nhập từng câu:</h4>
+          <input type="text" id="inputQuestion" placeholder="Câu hỏi">
+          <input type="text" id="inputOption0" placeholder="Đáp án A">
+          <input type="text" id="inputOption1" placeholder="Đáp án B">
+          <input type="text" id="inputOption2" placeholder="Đáp án C">
+          <input type="text" id="inputOption3" placeholder="Đáp án D">
+          <label for="inputCorrect">Đáp án đúng:</label>
+          <select id="inputCorrect">
+            <option value="0">A</option>
+            <option value="1">B</option>
+            <option value="2">C</option>
+            <option value="3">D</option>
+          </select>
+          <button id="addQuestionBtn">Thêm câu hỏi</button>
+        </div>
+        <div id="bulkInputs" class="hide">
+          <h4>Nhập nhanh (1 dòng mỗi câu):</h4>
+          <textarea id="inputBulk" rows="6" placeholder="VD: 1/Tôi là ai? A/ko bt B/Tôi *C/Ai D/Khác"></textarea>
+          <button id="importBulkBtn">Import đề</button>
+        </div>
         <p id="questionCount">Hiện có 0 câu hỏi</p>
       </div>
     </div>
@@ -139,131 +90,154 @@
     </div>
     <div class="content hide" id="resultScreen">
       <h2>Kết quả</h2>
-      <p id="scoreText" style="font-size:1.2rem;"></p>
+      <p id="scoreText"></p>
       <button id="restartBtn">Làm lại</button>
     </div>
-  </div>  <script>
-    // Helper: shuffle array
+  </div>
+  <script>
+    // Shuffle helper
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
     }
-
     let quizQuestions = [], currentIndex = 0, score = 0, participant = '';
-    // Controls
     const chkShuffleQ = document.getElementById('chkShuffleQ');
     const chkShuffleA = document.getElementById('chkShuffleA');
     const chkSpell = document.getElementById('chkSpell');
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsPanel = document.getElementById('settingsPanel');
     const themeColor = document.getElementById('themeColor');
-    // Screens
     const startScreen = document.getElementById('startScreen');
     const setupBtn = document.getElementById('toggleSetupBtn');
     const setupScreen = document.getElementById('setupScreen');
     const questionScreen = document.getElementById('questionScreen');
     const resultScreen = document.getElementById('resultScreen');
-    // Elements
     const startBtn = document.getElementById('startBtn');
     const addQuestionBtn = document.getElementById('addQuestionBtn');
+    const importBulkBtn = document.getElementById('importBulkBtn');
     const questionCount = document.getElementById('questionCount');
     const participantName = document.getElementById('participantName');
-    const inputFields = () => Array.from(document.querySelectorAll('#setupScreen input[type="text"]'));
+    const structuredInputs = document.getElementById('structuredInputs');
+    const bulkInputs = document.getElementById('bulkInputs');
+    const inputBulk = document.getElementById('inputBulk');
     const questionText = document.getElementById('questionText');
     const optionsContainer = document.getElementById('optionsContainer');
     const scoreText = document.getElementById('scoreText');
-    const restartBtn = document.getElementById('restartBtn');
+    const restartBtn = document.getElementById('restartBtn');// Settings toggle
+settingsBtn.addEventListener('click', () => {
+  settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
+});
+document.addEventListener('click', e => {
+  if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) settingsPanel.style.display = 'none';
+  if (!setupScreen.contains(e.target) && e.target !== setupBtn) setupScreen.classList.add('hide');
+});
+themeColor.addEventListener('input', e => document.documentElement.style.setProperty('--primary-color', e.target.value));
+chkSpell.addEventListener('change', () => participantName.spellcheck = chkSpell.checked);
 
-    // Settings panel toggle
-    settingsBtn.addEventListener('click', () => {
-      settingsPanel.style.display = settingsPanel.style.display === 'block' ? 'none' : 'block';
-    });
-    // Theme color
-    themeColor.addEventListener('input', e => document.documentElement.style.setProperty('--primary-color', e.target.value));
-    // Click outside
-    document.addEventListener('click', e => {
-      if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) settingsPanel.style.display = 'none';
-      if (!setupScreen.contains(e.target) && e.target !== setupBtn) setupScreen.classList.add('hide');
-    });
-    // Spellcheck toggle applies to inputs
-    chkSpell.addEventListener('change', () => {
-      inputFields().forEach(inp => inp.spellcheck = chkSpell.checked);
-    });
-
-    // Setup mode toggle
-    setupBtn.addEventListener('click', () => setupScreen.classList.toggle('hide'));
-    // Add questions
-    addQuestionBtn.addEventListener('click', () => {
-      const q = document.getElementById('inputQuestion').value.trim();
-      const opts = [0,1,2,3].map(i => document.getElementById(`inputOption${i}`).value.trim());
-      const correct = parseInt(document.getElementById('inputCorrect').value);
-      if (!q || opts.some(o => !o)) return alert('Vui lòng nhập đầy đủ!');
-      quizQuestions.push({ question: q, options: opts, correctIndex: correct });
-      questionCount.textContent = `Hiện có ${quizQuestions.length} câu hỏi`;
-      // clear fields
-      document.getElementById('inputQuestion').value = '';
-      opts.forEach((_, i) => document.getElementById(`inputOption${i}`).value = '');
-    });
-
-    // Start quiz
-    startBtn.addEventListener('click', () => {
-      if (!participantName.value.trim()) return alert('Nhập tên!');
-      if (quizQuestions.length === 0) return alert('Chưa có đề!');
-      participant = participantName.value.trim();
-      // Shuffle questions if checked
-      if (chkShuffleQ.checked) shuffleArray(quizQuestions);
-      // Shuffle answers if checked
-      if (chkShuffleA.checked) quizQuestions.forEach(q => {
-        let combo = q.options.map((opt,i) => ({opt, idx:i}));
-        if (chkShuffleA.checked) shuffleArray(combo);
-        q.options = combo.map(c => c.opt);
-        q.correctIndex = combo.findIndex(c => c.idx === q.correctIndex);
-      });
-      // Ensure spellcheck on inputs
-      inputFields().forEach(inp => inp.spellcheck = chkSpell.checked);
-      // Show question screen
-      startScreen.classList.add('hide'); questionScreen.classList.remove('hide');
-      currentIndex = 0; score = 0; loadQuestion();
-    });
-
-    // Load question
-    function loadQuestion() {
-      const q = quizQuestions[currentIndex];
-      questionText.textContent = `Câu ${currentIndex+1}: ${q.question}`;
-      optionsContainer.innerHTML = '';
-      q.options.forEach((opt,i) => {
-        const btn = document.createElement('button');
-        btn.textContent = `${String.fromCharCode(65+i)}. ${opt}`;
-        btn.addEventListener('click', () => selectOption(i));
-        optionsContainer.appendChild(btn);
-      });
+// Input mode switch
+document.getElementsByName('inputMode').forEach(radio => {
+  radio.addEventListener('change', () => {
+    if (radio.value === 'structured' && radio.checked) {
+      structuredInputs.classList.remove('hide'); bulkInputs.classList.add('hide');
+    } else if (radio.value === 'bulk' && radio.checked) {
+      bulkInputs.classList.remove('hide'); structuredInputs.classList.add('hide');
     }
-    // Select answer
-    function selectOption(i) {
-      const q = quizQuestions[currentIndex];
-      optionsContainer.querySelectorAll('button').forEach((btn, idx) => {
-        btn.disabled = true;
-        if (idx === q.correctIndex) btn.classList.add('correct');
-        else if (idx === i) btn.classList.add('wrong');
-      });
-      if (i === q.correctIndex) score++;
-      setTimeout(() => {
-        currentIndex++;
-        currentIndex < quizQuestions.length ? loadQuestion() : showResult();
-      }, 1000);
+  });
+});
+
+// Add structured question
+addQuestionBtn.addEventListener('click', () => {
+  const q = document.getElementById('inputQuestion').value.trim();
+  const opts = [0,1,2,3].map(i => document.getElementById(`inputOption${i}`).value.trim());
+  const correct = parseInt(document.getElementById('inputCorrect').value);
+  if (!q || opts.some(o => !o)) return alert('Nhập đủ thông tin!');
+  quizQuestions.push({ question: q, options: opts, correctIndex: correct });
+  questionCount.textContent = `Hiện có ${quizQuestions.length} câu hỏi`;
+  document.getElementById('inputQuestion').value = '';
+  opts.forEach((_,i) => document.getElementById(`inputOption${i}`).value = '');
+});
+
+// Import bulk questions
+importBulkBtn.addEventListener('click', () => {
+  const lines = inputBulk.value.split(/\r?\n/).filter(l => l.trim());
+  quizQuestions = [];
+  lines.forEach(line => {
+    const slashIdx = line.indexOf('/');
+    const optIdx = line.search(/[ABCD]\//);
+    if (slashIdx < 0 || optIdx < 0) return;
+    const question = line.substring(slashIdx+1, optIdx).trim();
+    const optsPart = line.substring(optIdx).trim();
+    const optionRegex = /(\*?)([A-D])\/([^*A-D]+)/g;
+    const optsArr = []; let correctIndex = 0;
+    let m; while ((m = optionRegex.exec(optsPart)) !== null) {
+      const starred = m[1] === '*';
+      const letter = m[2];
+      const text = m[3].trim();
+      const idx = letter.charCodeAt(0) - 65;
+      optsArr[idx] = text;
+      if (starred) correctIndex = idx;
     }
-    // Show result
-    function showResult() {
-      questionScreen.classList.add('hide'); resultScreen.classList.remove('hide');
-      scoreText.textContent = `${participant}, đúng ${score}/${quizQuestions.length} câu.`;
-    }
-    // Restart
-    restartBtn.addEventListener('click', () => {
-      quizQuestions = []; currentIndex = 0; score = 0;
-      participantName.value=''; questionCount.textContent='Hiện có 0 câu hỏi';
-      resultScreen.classList.add('hide'); startScreen.classList.remove('hide');
-    });
-  </script></body>
+    if (optsArr.length === 4) quizQuestions.push({ question, options: optsArr, correctIndex });
+  });
+  questionCount.textContent = `Hiện có ${quizQuestions.length} câu hỏi`;
+  inputBulk.value = '';
+});
+
+// Start quiz
+startBtn.addEventListener('click', () => {
+  if (!participantName.value.trim()) return alert('Nhập tên!');
+  if (quizQuestions.length === 0) return alert('Chưa có câu hỏi!');
+  participant = participantName.value.trim();
+  if (chkShuffleQ.checked) shuffleArray(quizQuestions);
+  if (chkShuffleA.checked) quizQuestions.forEach(q => {
+    const combo = q.options.map((opt,i) => ({ opt, idx: i }));
+    shuffleArray(combo);
+    q.options = combo.map(c => c.opt);
+    q.correctIndex = combo.findIndex(c => c.idx === q.correctIndex);
+  });
+  participantName.spellcheck = chkSpell.checked;
+  startScreen.classList.add('hide'); questionScreen.classList.remove('hide');
+  currentIndex = 0; score = 0; loadQuestion();
+});
+
+function loadQuestion() {
+  const q = quizQuestions[currentIndex];
+  questionText.textContent = `Câu ${currentIndex+1}: ${q.question}`;
+  optionsContainer.innerHTML = '';
+  q.options.forEach((opt,i) => {
+    const btn = document.createElement('button');
+    btn.textContent = `${String.fromCharCode(65+i)}. ${opt}`;
+    btn.addEventListener('click', () => selectOption(i));
+    optionsContainer.appendChild(btn);
+  });
+}
+
+function selectOption(choice) {
+  const q = quizQuestions[currentIndex];
+  optionsContainer.querySelectorAll('button').forEach((btn,idx) => {
+    btn.disabled = true;
+    btn.classList.add(idx === q.correctIndex ? 'correct' : (idx === choice ? 'wrong' : ''));
+  });
+  if (choice === q.correctIndex) score++;
+  setTimeout(() => {
+    currentIndex++;
+    currentIndex < quizQuestions.length ? loadQuestion() : showResult();
+  }, 1000);
+}
+
+function showResult() {
+  questionScreen.classList.add('hide'); resultScreen.classList.remove('hide');
+  scoreText.textContent = `${participant}, bạn đúng ${score}/${quizQuestions.length} câu.`;
+}
+
+restartBtn.addEventListener('click', () => {
+  quizQuestions = []; currentIndex = 0; score = 0;
+  participantName.value = ''; questionCount.textContent = 'Hiện có 0 câu hỏi';
+  resultScreen.classList.add('hide'); startScreen.classList.remove('hide');
+});
+
+  </script>
+</body>
 </html>
