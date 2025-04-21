@@ -36,6 +36,7 @@
     #closeLogin:hover{color:var(--primary);transform:scale(1.15)}
     @keyframes fadeSlide{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
     @media(max-width:640px){.card{width:100vw;border-radius:0}.optwrap{grid-template-columns:1fr}}
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -121,44 +122,179 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   /* ========= LOGIN ========= */
   $('userBtn').onclick=()=>$('login').classList.remove('hidden');
-  $('closeLogin').onclick=e=>{e.stopPropagation();$('login').classList.add('hidden');};
-  $('login').onclick=e=>{if(e.target.id==='login')$('login').classList.add('hidden');};
+  $('closeLogin').onclick=()=>{ $('login').classList.add('hidden'); };
+  $('login').onclick=e=>{
+    if(e.target.id==='login')$('login').classList.add('hidden');
+  };
 
   $('startBtn').onclick=()=>{
     if(!$('nameInp').value.trim()) return alert('Nhập tên');
     $('login').classList.add('hidden');
     if(!qs.length) return alert('Hãy nhập câu hỏi trước!');
     if(shuffleQ)shuffle(qs);
-    if(shuffleA)qs.forEach(q=>{const p=q.options.map((o,i)=>({o,i}));shuffle(p);q.options=p.map(x=>x.o);q.correct=p.findIndex(x=>x.i===q.correct)});
+    if(shuffleA)qs.forEach(q=>{
+      const p=q.options.map((o,i)=>({o,i}));
+      shuffle(p);
+      q.options=p.map(x=>x.o);
+      q.correct=p.findIndex(x=>x.i===q.correct)
+    });
     renderQuiz();show('quiz');
   };
 
   /* ========= SETTINGS ========= */
-  $('gear').onclick=e=>{e.stopPropagation();$('settings').style.display=$('settings').style.display==='block'?'none':'block'};
-  document.addEventListener('click',e=>{if(!$('settings').contains(e.target)&&e.target!=$('gear'))$('settings').style.display='none'});
+  $('gear').onclick=e=>{
+    e.stopPropagation();
+    $('settings').style.display=$('settings').style.display==='block'?'none':'block'
+  };
+  document.addEventListener('click',e=>{
+    if(!$('settings').contains(e.target)&&e.target!=$('gear'))$('settings').style.display='none'
+  });
   $('colorPick').oninput=e=>document.documentElement.style.setProperty('--primary',e.target.value);
-  $('toggleSQ').onclick=()=>{shuffleQ=!shuffleQ;$('toggleSQ').textContent=`Xáo câu hỏi: ${shuffleQ?'Bật':'Tắt'}`};
-  $('toggleSA').onclick=()=>{shuffleA=!shuffleA;$('toggleSA').textContent=`Xáo đáp án: ${shuffleA?'Bật':'Tắt'}`};
-  $('toggleSpell').onclick=()=>{spell=!spell;$('nameInp').spellcheck=spell;$('toggleSpell').textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`};
-  $('fsBtn').onclick=()=>{const c=$('card');if(!document.fullscreenElement){c.requestFullscreen();$('fsBtn').textContent='Thoát FS';}else{document.exitFullscreen();$('fsBtn').textContent='Toàn màn hình';}};
+  $('toggleSQ').onclick=()=>{
+    shuffleQ=!shuffleQ;
+    $('toggleSQ').textContent=`Xáo câu hỏi: ${shuffleQ?'Bật':'Tắt'}`
+  };
+  $('toggleSA').onclick=()=>{
+    shuffleA=!shuffleA;
+    $('toggleSA').textContent=`Xáo đáp án: ${shuffleA?'Bật':'Tắt'}`
+  };
+  $('toggleSpell').onclick=()=>{
+    spell=!spell;
+    $('nameInp').spellcheck=spell;
+    $('toggleSpell').textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`
+  };
+  $('fsBtn').onclick=()=>{
+    const c=$('card');
+    if(!document.fullscreenElement){
+      c.requestFullscreen();
+      $('fsBtn').textContent='Thoát FS';
+    }else{
+      document.exitFullscreen();
+      $('fsBtn').textContent='Toàn màn hình';
+    }
+  };
 
   /* ========= SETUP ========= */
-  $('modeBtn').onclick=()=>{$('manual').classList.toggle('hidden');$('bulk').classList.toggle('hidden');$('modeBtn').textContent=$('manual').classList.contains('hidden')?'Nhập thủ công':'Nhập nhanh'};
-  $('addBtn').onclick=()=>{const q=$('qInp').value.trim(),opts=[...'0123'].map(i=>$('a'+i).value.trim()),ci=+$('correctSel').value;if(!q||opts.some(o=>!o))return alert('Thiếu dữ liệu');qs.push({question:q,options:opts,correct:ci});$('qInp').value='';[...'0123'].forEach(i=>$('a'+i).value='');updateCount();};
-  $('importBtn').onclick=()=>{qs=[];$('bulkArea').value.split(/\\n\\s*\\n/).forEach(b=>{const l=b.split(/\\n/).map(x=>x.trim()).filter(Boolean);if(l.length<2)return;const q=l[0].replace(/^Câu\\s*\\d+:/,'').trim();const opts=[],ci=l.slice(1).reduce((c,line)=>{const m=line.match(/\\*?([A-D])\\.\\s*(.+)/);if(m){const idx=m[1].charCodeAt(0)-65;opts[idx]=m[2];return line.startsWith('*')?idx:c;}return c;},0);if(opts.length===4)qs.push({question:q,options:opts,correct:ci});});$('bulkArea').value='';updateCount();};
+  $('modeBtn').onclick=()=>{
+    $('manual').classList.toggle('hidden');
+    $('bulk').classList.toggle('hidden');
+    $('modeBtn').textContent=$('manual').classList.contains('hidden')?'Nhập thủ công':'Nhập nhanh'
+  };
+  $('addBtn').onclick=()=>{
+    const q=$('qInp').value.trim(),
+    opts=[...'0123'].map(i=>$('a'+i).value.trim()),
+    ci=+$('correctSel').value;
+    if(!q||opts.some(o=>!o))return alert('Thiếu dữ liệu');
+    qs.push({question:q,options:opts,correct:ci});
+    $('qInp').value='';
+    [...'0123'].forEach(i=>$('a'+i).value='');
+    updateCount();
+  };
+  $('importBtn').onclick=()=>{
+    qs=[];
+    $('bulkArea').value.split(/\n\s*\n/).forEach(b=>{
+      const l=b.split(/\n/).map(x=>x.trim()).filter(Boolean);
+      if(l.length<2)return;
+      const q=l[0].replace(/^Câu\s*\d+:/,'').trim();
+      const opts=[],ci=l.slice(1).reduce((c,line)=>{
+        const m=line.match(/\*?([A-D])\.\s*(.+)/);
+        if(m){
+          const idx=m[1].charCodeAt(0)-65;
+          opts[idx]=m[2];
+          return line.startsWith('*')?idx:c;
+        }
+        return c;
+      },0);
+      if(opts.length===4)qs.push({question:q,options:opts,correct:ci});
+    });
+    $('bulkArea').value='';
+    updateCount();
+  };
   $('viewBtn').onclick=()=>{show('view');renderView();};
   $('backSetup').onclick=()=>show('setup');
 
-  const renderView=()=>{$('viewList').innerHTML='';qs.forEach((q,i)=>{const card=document.createElement('div');card.className='qcard';card.innerHTML=`<h3>Câu ${i+1}: ${q.question}</h3>`;const act=document.createElement('div');act.className='actions';const e=document.createElement('span');e.textContent='✎';e.onclick=()=>{show('setup');$('manual').classList.remove('hidden');$('bulk').classList.add('hidden');$('modeBtn').textContent='Nhập nhanh';$('qInp').value=q.question;[...'0123'].forEach(j=>$('a'+j).value=q.options[j]);$('correctSel').value=q.correct;qs.splice(i,1);updateCount();};const d=document.createElement('span');d.textContent='✖';d.onclick=()=>{qs.splice(i,1);renderView();updateCount();};act.append(e,d);card.appendChild(act);$('viewList').appendChild(card);});};
+  const renderView=()=>{
+    $('viewList').innerHTML='';
+    qs.forEach((q,i)=>{
+      const card=document.createElement('div');
+      card.className='qcard';
+      card.innerHTML=`<h3>Câu ${i+1}: ${q.question}</h3>`;
+      const act=document.createElement('div');
+      act.className='actions';
+      const e=document.createElement('span');
+      e.textContent='✎';
+      e.onclick=()=>{
+        show('setup');
+        $('manual').classList.remove('hidden');
+        $('bulk').classList.add('hidden');
+        $('modeBtn').textContent='Nhập nhanh';
+        $('qInp').value=q.question;
+        [...'0123'].forEach(j=>$('a'+j).value=q.options[j]);
+        $('correctSel').value=q.correct;
+        qs.splice(i,1);
+        updateCount();
+      };
+      const d=document.createElement('span');
+      d.textContent='✖';
+      d.onclick=()=>{
+        qs.splice(i,1);
+        renderView();
+        updateCount();
+      };
+      act.append(e,d);
+      card.appendChild(act);
+      $('viewList').appendChild(card);
+    });
+  };
 
   /* ========= QUIZ ========= */
-  const renderQuiz=()=>{$('quizList').innerHTML='';score=0;qs.forEach((q,i)=>{const card=document.createElement('div');card.className='qcard';card.innerHTML=`<h3>Câu ${i+1}: ${q.question}</h3>`;const wrap=document.createElement('div');wrap.className='optwrap';q.options.forEach((o,j)=>{const op=document.createElement('div');op.className='opt';op.textContent=`${String.fromCharCode(65+j)}. ${o}`;op.onclick=()=>{wrap.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));op.classList.add('selected');};wrap.appendChild(op);});card.appendChild(wrap);$('quizList').appendChild(card);});};
-  $('submitBtn').onclick=()=>{document.querySelectorAll('#quizList .qcard').forEach((c,i)=>{const sel=c.querySelector('.opt.selected');if(sel&&sel.textContent.startsWith(String.fromCharCode(65+qs[i].correct)+'.'))score++;});$('resultTxt').textContent=`${$('nameInp').value}, bạn đúng ${score}/${qs.length} câu.`;show('result');};
+  const renderQuiz=()=>{
+    $('quizList').innerHTML='';
+    score=0;
+    qs.forEach((q,i)=>{
+      const card=document.createElement('div');
+      card.className='qcard';
+      card.innerHTML=`<h3>Câu ${i+1}: ${q.question}</h3>`;
+      const wrap=document.createElement('div');
+      wrap.className='optwrap';
+      q.options.forEach((o,j)=>{
+        const op=document.createElement('div');
+        op.className='opt';
+        op.textContent=`${String.fromCharCode(65+j)}. ${o}`;
+        op.onclick=()=>{
+          wrap.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));
+          op.classList.add('selected');
+        };
+        wrap.appendChild(op);
+      });
+      card.appendChild(wrap);
+      $('quizList').appendChild(card);
+    });
+  };
+  $('submitBtn').onclick=()=>{
+    document.querySelectorAll('#quizList .qcard').forEach((c,i)=>{
+      const sel=c.querySelector('.opt.selected');
+      if(sel&&sel.textContent.startsWith(String.fromCharCode(65+qs[i].correct)+'.'))score++;
+    });
+    $('resultTxt').textContent=`${$('nameInp').value}, bạn đúng ${score}/${qs.length} câu.`;
+    show('result');
+  };
   $('retryBtn').onclick=()=>{renderQuiz();show('quiz');};
-  $('homeBtn').onclick=()=>{qs=[];score=0;$('nameInp').value='';updateCount();show('setup');};
+  $('homeBtn').onclick=()=>{
+    qs=[];
+    score=0;
+    $('nameInp').value='';
+    updateCount();
+    show('setup');
+  };
 
   /* INIT */
-  for(let i=0;i<4;i++){const o=document.createElement('option');o.value=i;o.textContent=String.fromCharCode(65+i);$('correctSel').appendChild(o);}
+  for(let i=0;i<4;i++){
+    const o=document.createElement('option');
+    o.value=i;
+    o.textContent=String.fromCharCode(65+i);
+    $('correctSel').appendChild(o);
+  }
   updateCount();
 });
 </script>
