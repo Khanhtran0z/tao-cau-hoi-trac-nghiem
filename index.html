@@ -13,7 +13,6 @@
     .card.fullscreen{width:100vw;height:100vh;max-width:none;border-radius:0;}
     header{background:var(--primary-color);color:#fff;padding:16px;text-align:center;position:relative;}
     header h1{margin:0;font-weight:500;}
-    .current-de-btn{position:absolute;top:16px;left:16px;color:#fff;cursor:pointer;font-weight:500;text-decoration:underline;}
     .settings-btn{position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.5rem;color:#fff;cursor:pointer;}
     .settings-panel{position:absolute;top:56px;right:16px;background:var(--card-bg);padding:16px;box-shadow:0 8px 24px var(--shadow);border-radius:8px;width:220px;display:none;z-index:10;}
     .settings-panel button{width:100%;margin:8px 0;padding:8px;background:var(--primary-color);color:#fff;border:none;border-radius:4px;cursor:pointer;}
@@ -24,14 +23,16 @@
     .question-card h2{font-size:1.25rem;font-weight:500;margin-bottom:12px;}
     .question-card .actions{position:absolute;top:8px;right:8px;display:flex;gap:8px;}
     .question-card .actions span{cursor:pointer;font-size:1.1rem;color:#000;}
-    .options{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
     .option{background:var(--option-bg);border:1px solid #000;border-radius:12px;padding:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s;}
     .option span{font-size:1rem;text-align:center;color:var(--text-color);}
     .option:hover{background:var(--option-hover);}
     .option.selected{background:var(--primary-color);border-color:var(--primary-color);}
     .option.selected span{color:#fff;}
-    button.main-btn{background:var(--primary-color);color:#fff;border:none;border-radius:6px;padding:12px 20px;font-size:1rem;cursor:pointer;transition:filter .3s;margin-top:16px;}
-    button.main-btn:hover{filter:brightness(90%);}
+    .main-btn{background:var(--primary-color);color:#fff;border:none;border-radius:6px;padding:12px 20px;font-size:1rem;cursor:pointer;transition:filter .3s;}
+    .main-btn:hover{filter:brightness(90%);}
+    #currentDeBtn{background:var(--primary-color);margin-top:8px;}
+    #currentDePanel{border:1px solid var(--primary-color);border-radius:6px;padding:12px;margin-top:8px;max-height:200px;overflow-y:auto;display:none;}
     @media(max-width:600px){.card{width:90vw;}header,.screen{padding:12px;} .question-card h2{font-size:1.1rem;} .option{padding:8px;} .option span{font-size:0.9rem;} }
   </style>
 </head>
@@ -39,7 +40,6 @@
   <div id="app">
     <div id="card" class="card">
       <header>
-        <span id="currentDe" class="current-de-btn">Đề hiện tại</span>
         <h1>Hệ Thống Trắc Nghiệm</h1>
         <button id="settingsBtn" class="settings-btn">⚙️</button>
       </header>
@@ -77,6 +77,8 @@
         <button id="importBulkBtn" class="main-btn">Nhập nhanh</button>
       </div>
       <p id="questionCount">Hiện có 0 câu hỏi</p>
+      <button id="currentDeBtn" class="main-btn">Đề hiện tại</button>
+      <div id="currentDePanel"></div>
     </div>
   </div>
 
@@ -91,17 +93,19 @@
     <h2>Kết quả</h2>
     <p id="resultText"></p>
     <button id="restartBtn" class="main-btn">Làm lại</button>
+    <button id="backHomeBtn" class="main-btn">Về màn hình chính</button>
   </div>
 </div>
 
-  </div>  <script>
+  </div>
+  <script>
     let shuffleQ=true, shuffleA=true, spell=true; let questions=[], score=0;
     const card=document.getElementById('card');
     const settingsBtn=document.getElementById('settingsBtn'), settingsPanel=document.getElementById('settingsPanel');
     const toggleShuffleQ=document.getElementById('toggleShuffleQ'), toggleShuffleA=document.getElementById('toggleShuffleA');
     const toggleSpell=document.getElementById('toggleSpell'), enterFs=document.getElementById('enterFs');
     const themeColor=document.getElementById('themeColor');
-    const currentDe=document.getElementById('currentDe');
+    const currentDeBtn=document.getElementById('currentDeBtn'), currentDePanel=document.getElementById('currentDePanel');
     const startScreen=document.getElementById('startScreen'), toggleSetupBtn=document.getElementById('toggleSetupBtn');
     const setupScreen=document.getElementById('setupScreen'), toggleInputModeBtn=document.getElementById('toggleInputModeBtn');
     const manualInput=document.getElementById('manualInput'), bulkInput=document.getElementById('bulkInput');
@@ -112,67 +116,77 @@
     const questionCount=document.getElementById('questionCount');
     const optionsContainer=document.getElementById('optionsContainer'), submitBtn=document.getElementById('submitBtn');
     const resultScreen=document.getElementById('resultScreen'), resultText=document.getElementById('resultText');
-    const restartBtn=document.getElementById('restartBtn');
+    const restartBtn=document.getElementById('restartBtn'), backHomeBtn=document.getElementById('backHomeBtn');function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
 
-    function shuffleArray(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}}
+// Settings
+settingsBtn.onclick=e=>{e.stopPropagation();settingsPanel.style.display=settingsPanel.style.display==='block'?'none':'block';};
+document.addEventListener('click',e=>{if(!settingsPanel.contains(e.target))settingsPanel.style.display='none';});
+themeColor.oninput=e=>document.documentElement.style.setProperty('--primary-color',e.target.value);
+toggleShuffleQ.onclick=()=>{shuffleQ=!shuffleQ;toggleShuffleQ.textContent=`Xáo câu hỏi: ${shuffleQ?'Bật':'Tắt'}`;};
+toggleShuffleA.onclick=()=>{shuffleA=!shuffleA;toggleShuffleA.textContent=`Xáo đáp án: ${shuffleA?'Bật':'Tắt'}`;};
+toggleSpell.onclick=()=>{spell=!spell;participantName.spellcheck=spell;toggleSpell.textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`;};
+enterFs.onclick=()=>{if(!document.fullscreenElement){card.requestFullscreen();enterFs.textContent='Thoát Fullscreen';}else{document.exitFullscreen();enterFs.textContent='Toàn màn hình';}};
 
-    // Đề hiện tại
-    currentDe.onclick=()=>window.open('setup.html','_blank');
-    
-    // Settings
-    settingsBtn.onclick=e=>{e.stopPropagation();settingsPanel.style.display=settingsPanel.style.display==='block'?'none':'block';};
-    document.addEventListener('click',e=>{if(!settingsPanel.contains(e.target))settingsPanel.style.display='none';});
-    themeColor.oninput=e=>document.documentElement.style.setProperty('--primary-color',e.target.value);
-    toggleShuffleQ.onclick=()=>{shuffleQ=!shuffleQ;toggleShuffleQ.textContent=`Xáo câu hỏi: ${shuffleQ?'Bật':'Tắt'}`;};
-    toggleShuffleA.onclick=()=>{shuffleA=!shuffleA;toggleShuffleA.textContent=`Xáo đáp án: ${shuffleA?'Bật':'Tắt'}`;};
-    toggleSpell.onclick=()=>{spell=!spell;participantName.spellcheck=spell;toggleSpell.textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`;};
-    enterFs.onclick=()=>{if(!document.fullscreenElement){card.requestFullscreen();enterFs.textContent='Thoát Fullscreen';}else{document.exitFullscreen();enterFs.textContent='Toàn màn hình';}};
+// Current De
+currentDeBtn.onclick=()=>{
+  if(currentDePanel.style.display==='block')return currentDePanel.style.display='none';
+  currentDePanel.innerHTML='';
+  questions.forEach((q,i)=>{
+    const p=document.createElement('p');p.textContent=`${i+1}. ${q.question}`;currentDePanel.appendChild(p);
+  });
+  currentDePanel.style.borderColor= getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+  currentDePanel.style.display='block';
+};
 
-    // Setup
-    toggleSetupBtn.onclick=()=>setupScreen.classList.toggle('hidden');
-    let isManual=true;
-    toggleInputModeBtn.onclick=()=>{isManual=!isManual;manualInput.classList.toggle('hidden',!isManual);bulkInput.classList.toggle('hidden',isManual);toggleInputModeBtn.textContent=isManual?'Chuyển sang nhập nhanh':'Chuyển sang nhập thủ công';};
-    addQuestionBtn.onclick=()=>{const q=qInput.value.trim();const opts=aInputs.map(i=>i.value.trim());const ci=parseInt(cInput.value);if(!q||opts.some(o=>!o))return alert('Nhập đủ thông tin!');questions.push({question:q,options:opts,correct:ci});questionCount.textContent=`Hiện có ${questions.length} câu hỏi`;qInput.value='';aInputs.forEach(i=>i.value='');};
-    importBulkBtn.onclick=()=>{questions=[];const blocks=bulkArea.value.split(/\n\s*\n/);blocks.forEach(b=>{const lines=b.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);if(lines.length<2)return;const q=lines[0].replace(/^Câu\s*\d+\s*:\s*/,'') .trim();const optsArr=[];let corr=0;lines.slice(1).forEach(l=>{const m=l.match(/^\*?([A-D])\.\s*(.+)$/);if(m){const idx=m[1].charCodeAt(0)-65;optsArr[idx]=m[2].trim();if(l.startsWith('*'))corr=idx;}});if(optsArr.length===4)questions.push({question:q,options:optsArr,correct:corr});});questionCount.textContent=`Hiện có ${questions.length} câu hỏi`;bulkArea.value='';};
+// Setup
+toggleSetupBtn.onclick=()=>setupScreen.classList.toggle('hidden');
+let isManual=true;
+toggleInputModeBtn.onclick=()=>{isManual=!isManual;manualInput.classList.toggle('hidden',!isManual);bulkInput.classList.toggle('hidden',isManual);toggleInputModeBtn.textContent=isManual?'Chuyển sang nhập nhanh':'Chuyển sang nhập thủ công';};
+addQuestionBtn.onclick=()=>{const q=qInput.value.trim();const opts=aInputs.map(i=>i.value.trim());const ci=parseInt(cInput.value);if(!q||opts.some(o=>!o))return alert('Nhập đủ thông tin!');questions.push({question:q,options:opts,correct:ci});questionCount.textContent=`Hiện có ${questions.length} câu hỏi`;qInput.value='';aInputs.forEach(i=>i.value='');};
+importBulkBtn.onclick=()=>{questions=[];const blocks=bulkArea.value.split(/\n\s*\n/);blocks.forEach(b=>{const lines=b.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);if(lines.length<2)return;const q=lines[0].replace(/^Câu\s*\d+\s*:\s*/,'').trim();const optsArr=[];let corr=0;lines.slice(1).forEach(l=>{const m=l.match(/^\*?([A-D])\.\s*(.+)$/);if(m){const idx=m[1].charCodeAt(0)-65;optsArr[idx]=m[2].trim();if(l.startsWith('*'))corr=idx;}});if(optsArr.length===4)questions.push({question:q,options:optsArr,correct:corr});});questionCount.textContent=`Hiện có ${questions.length} câu hỏi`;bulkArea.value='';};
 
-    // Start render
-    startBtn.onclick=()=>{
-      if(!participantName.value.trim())return alert('Nhập tên!');
-      if(!questions.length)return alert('Chưa có câu hỏi!');
-      if(shuffleQ)shuffleArray(questions);
-      if(shuffleA)questions.forEach(q=>{const arr=q.options.map((opt,i)=>({opt,i}));shuffleArray(arr);q.options=arr.map(x=>x.opt);q.correct=arr.find(x=>x.i===q.correct).i;});
-      participantName.spellcheck=spell;
-      startScreen.classList.add('hidden');questionScreen.classList.remove('hidden');card.classList.add('fullscreen');
-      optionsContainer.innerHTML=''; score=0;
-      questions.forEach((q,i)=>{
-        const qc=document.createElement('div');qc.className='question-card';
-        const h2=document.createElement('h2');h2.textContent=`Câu ${i+1}: ${q.question}`;qc.appendChild(h2);
-        const actions=document.createElement('div');actions.className='actions';
-        const del=document.createElement('span');del.textContent='✖';del.title='Xóa câu';del.onclick=()=>{questions.splice(i,1);questionScreen.classList.add('hidden');startScreen.classList.remove('hidden');card.classList.remove('fullscreen');};
-        const edit=document.createElement('span');edit.textContent='✎';edit.title='Chỉnh sửa câu';edit.onclick=()=>{/* open editor */};
-        actions.appendChild(edit);actions.appendChild(del);qc.appendChild(actions);
-        const optsDiv=document.createElement('div');optsDiv.className='options';
-        q.options.forEach((opt,j)=>{
-          const btn=document.createElement('div');btn.className='option';btn.dataset.index=j;
-          const span=document.createElement('span');span.textContent=`${String.fromCharCode(65+j)}. ${opt}`;
-          btn.appendChild(span);
-          btn.onclick=()=>{Array.from(optsDiv.children).forEach(o=>o.classList.remove('selected'));btn.classList.add('selected');};
-          optsDiv.appendChild(btn);
-        });qc.appendChild(optsDiv);optionsContainer.appendChild(qc);
-      });
-    };
+// Start rendering
+startBtn.onclick=()=>{
+  if(!participantName.value.trim()) return alert('Nhập tên!');
+  if(!questions.length) return alert('Chưa có câu hỏi!');
+  if(shuffleQ) shuffleArray(questions);
+  if(shuffleA) questions.forEach(q=>{
+    const arr = q.options.map((opt,i)=>({opt,i})); shuffleArray(arr);
+    q.options = arr.map(x=>x.opt);
+    q.correct = arr.find(x=>x.i===q.correct).i;
+  });
+  participantName.spellcheck = spell;
+  startScreen.classList.add('hidden'); questionScreen.classList.remove('hidden'); card.classList.add('fullscreen');
+  optionsContainer.innerHTML = ''; score = 0;
+  questions.forEach((q,i)=>{
+    const qc = document.createElement('div'); qc.className = 'question-card';
+    const h2 = document.createElement('h2'); h2.textContent = `Câu ${i+1}: ${q.question}`; qc.appendChild(h2);
+    const optsDiv = document.createElement('div'); optsDiv.className = 'options';
+    q.options.forEach((opt,j)=>{
+      const btn = document.createElement('div'); btn.className = 'option'; btn.dataset.index = j;
+      const span = document.createElement('span'); span.textContent = `${String.fromCharCode(65+j)}. ${opt}`;
+      btn.appendChild(span);
+      btn.onclick = ()=>{
+        Array.from(optsDiv.children).forEach(o=>o.classList.remove('selected'));
+        btn.classList.add('selected');
+      };
+      optsDiv.appendChild(btn);
+    });
+    qc.appendChild(optsDiv); optionsContainer.appendChild(qc);
+  });
+};
+// Submit
+submitBtn.onclick=()=>{
+  score=0;document.querySelectorAll('.question-card').forEach((qc,i)=>{const sel=qc.querySelector('.option.selected');if(sel&&parseInt(sel.dataset.index)===questions[i].correct)score++;});
+  questionScreen.classList.add('hidden');resultScreen.classList.remove('hidden');resultText.textContent=`${participantName.value}, bạn đúng ${score}/${questions.length} câu.`;
+};
 
-    // Submit
-    submitBtn.onclick=()=>{
-      score=0;
-      document.querySelectorAll('.question-card').forEach((qc,i)=>{
-        const sel=qc.querySelector('.option.selected');
-        if(sel && parseInt(sel.dataset.index)===questions[i].correct) score++;
-      });
-      questionScreen.classList.add('hidden');resultScreen.classList.remove('hidden');resultText.textContent=`${participantName.value}, bạn đúng ${score}/${questions.length} câu.`;
-    };
+// Restart quiz
+restartBtn.onclick=()=>{document.querySelectorAll('.option.selected').forEach(o=>o.classList.remove('selected'));score=0;};
 
-    // Restart
-    restartBtn.onclick=()=>{questions=[];score=0;participantName.value='';questionCount.textContent='0 câu hỏi';resultScreen.classList.add('hidden');startScreen.classList.remove('hidden');card.classList.remove('fullscreen');};
-  </script></body>
+// Back home
+backHomeBtn.onclick=()=>{questions=[];score=0;participantName.value='';questionCount.textContent='0 câu hỏi';resultScreen.classList.add('hidden');startScreen.classList.remove('hidden');card.classList.remove('fullscreen');currentDePanel.style.display='none';};
+
+  </script>
+</body>
 </html>
