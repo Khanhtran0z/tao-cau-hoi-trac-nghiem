@@ -186,18 +186,20 @@ document.addEventListener('DOMContentLoaded',()=>{
     [...'0123'].forEach(i=>$('a'+i).value='');  
     updateCount();  
   };  
+  /*Import*/
 $('importBtn').onclick = () => {
   qs = [];
   const blocks = $('bulkArea').value.trim().split(/\n\s*\n/);
+  // Thêm dấu '/' vào class phân cách
   const optRx = /^\s*(\*)?\s*([A-D])\s*[\.\/\):\-]?\s*(.+)$/i;
 
   blocks.forEach(block => {
     const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
     if (lines.length < 2) return;
 
-    // Loại bỏ “Câu 1:”, “1)”, “1.”, “- …”
+    // Bổ sung '/' vào class phân tách để loại bỏ 1/ hoặc 1: hoặc 1. hoặc 1) hoặc 1- 
     const question = lines[0]
-      .replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.\)\-]?\s*/i, '')
+      .replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.\/\)\-]?\s*/i, '')
       .trim();
 
     const opts = new Array(4);
