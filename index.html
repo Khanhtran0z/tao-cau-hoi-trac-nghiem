@@ -62,9 +62,9 @@
 <div id="app">
   <div id="card" class="card">
     <header>
-      <button id="userBtn">👤</button>
+      <button id="userBtn" type="button">👤</button>
       <h1>Hệ Thống Trắc Nghiệm</h1>
-      <button id="gear">⚙️</button>
+      <button id="gear" type="button">⚙️</button>
     </header>
     <!-- LOGIN -->
     <div id="login" class="hidden">
@@ -72,13 +72,13 @@
         <span id="closeLogin">✖</span>
         <h2 style="margin:28px 0 18px">Nhập tên người chơi</h2>
         <input id="nameInp" placeholder="Tên của bạn" spellcheck>
-        <button id="startBtn" class="btn" style="margin-top:12px;width:100%">Bắt đầu</button>
+        <button id="startBtn" class="btn" style="margin-top:12px;width:100%" type="button">Bắt đầu</button>
       </div>
     </div>
 
     <!-- SETUP -->
     <div id="setup" class="screen">
-      <button id="modeBtn" class="btn" style="background:#38bdf8">Nhập nhanh</button>
+      <button id="modeBtn" class="btn" style="background:#38bdf8" type="button">Nhập nhanh</button>
       <div id="manual" style="margin-top:12px">
         <input id="qInp" placeholder="Câu hỏi">
         <input id="a0" placeholder="Đáp án A"><input id="a1" placeholder="Đáp án B">
@@ -87,15 +87,15 @@
         <!-- Image upload -->
         <input id="imgInp" type="file" accept="image/*">
         <img id="imgPreview" class="hidden" />
-        <button id="clearImg" class="remove-img hidden">Xóa ảnh</button>
-        <button id="addBtn" class="btn" style="margin-top:6px">Thêm câu hỏi</button>
+        <button id="clearImg" class="remove-img hidden" type="button">Xóa ảnh</button>
+        <button id="addBtn" class="btn" style="margin-top:6px" type="button">Thêm câu hỏi</button>
       </div>
       <div id="bulk" class="hidden" style="margin-top:12px">
         <textarea id="bulkArea" rows="6" placeholder="Dán định dạng nhanh…"></textarea>
-        <button id="importBtn" class="btn" style="margin-top:6px">Import nhanh</button>
+        <button id="importBtn" class="btn" style="margin-top:6px" type="button">Import nhanh</button>
       </div>
       <p id="count" style="margin-top:10px;font-weight:500"></p>
-      <button id="viewBtn" class="btn" style="margin-top:6px;background:#1163ff">Đề hiện tại</button>
+      <button id="viewBtn" class="btn" style="margin-top:6px;background:#1163ff" type="button">Đề hiện tại</button>
     </div>
 
     <!-- VIEW -->
@@ -103,13 +103,13 @@
       <h2 style="margin-bottom:14px">Đề hiện tại</h2>
       <div id="viewList"></div>
       <div id="clearAllWrap"></div>
-      <button id="backSetup" class="btn" style="background:#64748b">Quay lại chỉnh đề</button>
+      <button id="backSetup" class="btn" style="background:#64748b" type="button">Quay lại chỉnh đề</button>
     </div>
 
     <!-- QUIZ -->
     <div id="quiz" class="screen hidden">
       <div id="quizList"></div>
-      <button id="submitBtn" class="btn" style="margin-top:10px">Nộp bài</button>
+      <button id="submitBtn" class="btn" style="margin-top:10px" type="button">Nộp bài</button>
     </div>
 
     <!-- RESULT -->
@@ -117,23 +117,23 @@
       <h2>Kết quả</h2>
       <p id="resultTxt" style="font-size:1.2rem;font-weight:600"></p>
       <div style="margin-top:14px;display:flex;gap:12px">
-        <button id="retryBtn" class="btn" style="flex:1">Làm lại</button>
-        <button id="homeBtn" class="btn" style="flex:1;background:#64748b">Trang chủ</button>
+        <button id="retryBtn" class="btn" style="flex:1" type="button">Làm lại</button>
+        <button id="homeBtn" class="btn" style="flex:1;background:#64748b" type="button">Trang chủ</button>
       </div>
     </div>
 
     <!-- SETTINGS -->
     <div id="settings">
-      <button id="toggleSQ" class="btn">Xáo câu hỏi: Bật</button>
-      <button id="toggleSA" class="btn">Xáo đáp án: Bật</button>
-      <button id="toggleSpell" class="btn">Spellcheck: Bật</button>
-      <button id="fsBtn" class="btn">Toàn màn hình</button>
+      <button id="toggleSQ" class="btn" type="button">Xáo câu hỏi: Bật</button>
+      <button id="toggleSA" class="btn" type="button">Xáo đáp án: Bật</button>
+      <button id="toggleSpell" class="btn" type="button">Spellcheck: Bật</button>
+      <button id="fsBtn" class="btn" type="button">Toàn màn hình</button>
       <input id="colorPick" type="color" value="#6366f1" style="margin-top:12px">
     </div>
   </div>
 </div>
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
+(function(){
   const $=id=>document.getElementById(id);
   let qs=[],score=0,shuffleQ=true,shuffleA=true,spell=true, editIndex=null;
   const LS_KEY = 'tao-cau-hoi-trac-nghiem-qs';
@@ -147,33 +147,47 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(Array.isArray(data)) qs = data;
     } catch {}
   }
-  // Khôi phục khi load trang
-  loadFromStorage();
 
-  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}};
-  const updateCount=()=>$('count').textContent=`${qs.length} câu hỏi`;
-  const screens={setup:$('setup'),view:$('view'),quiz:$('quiz'),result:$('result')};
-  const show=k=>Object.values(screens).forEach(s=>s.classList.toggle('hidden',s!==screens[k]));
+  function updateCount(){ $('count').textContent=`${qs.length} câu hỏi`; }
+  function resetManual(){
+    $('qInp').value='';[...'0123'].forEach(i=>$('a'+i).value='');$('correctSel').value=0;
+    $('imgInp').value='';$('imgPreview').classList.add('hidden');$('clearImg').classList.add('hidden'); editIndex=null;
+  }
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} }
+  function show(k){ Object.values(screens).forEach(s=>s.classList.toggle('hidden',s!==screens[k])); }
 
-  /* IMAGE PREVIEW HANDLING */
-  $('imgInp').onchange = e => {
+  const screens={
+    setup:$('setup'),view:$('view'),quiz:$('quiz'),result:$('result')
+  };
+
+  // --- INIT ---
+  document.addEventListener('DOMContentLoaded',function(){
+    // Nạp storage trước khi render
+    loadFromStorage();
+    updateCount();
+    for(let i=0;i<4;i++){ const o=document.createElement('option'); o.value=i; o.textContent=String.fromCharCode(65+i); $('correctSel').appendChild(o);}
+  });
+
+  // Image preview
+  $('imgInp').onchange = function(e){
     const file = e.target.files[0];
     if(file){
       const url = URL.createObjectURL(file);
-      $('imgPreview').src = url; $('imgPreview').classList.remove('hidden');
+      $('imgPreview').src = url;
+      $('imgPreview').classList.remove('hidden');
       $('clearImg').classList.remove('hidden');
     }
   };
-  $('clearImg').onclick = ()=>{
+  $('clearImg').onclick = function(){
     $('imgInp').value=''; $('imgPreview').src=''; $('imgPreview').classList.add('hidden'); $('clearImg').classList.add('hidden');
   };
 
-  /* LOGIN */
-  $('userBtn').onclick=()=>$('login').classList.remove('hidden');
-  $('closeLogin').onclick=()=>{$('login').classList.add('hidden');};
-  $('login').onclick=e=>{ if(e.target.id==='login')$('login').classList.add('hidden'); };
+  // LOGIN
+  $('userBtn').onclick=function(){$('login').classList.remove('hidden');};
+  $('closeLogin').onclick=function(){$('login').classList.add('hidden');};
+  $('login').onclick=function(e){ if(e.target.id==='login')$('login').classList.add('hidden'); };
 
-  $('startBtn').onclick=()=>{
+  $('startBtn').onclick=function(){
     if(!$('nameInp').value.trim()) return alert('Nhập tên');
     if(!qs.length) return alert('Hãy nhập câu hỏi trước!');
     $('login').classList.add('hidden');
@@ -186,24 +200,43 @@ document.addEventListener('DOMContentLoaded',()=>{
     renderQuiz(); show('quiz');
   };
 
-  /* SETTINGS */
-  $('gear').onclick=e=>{e.stopPropagation();$('settings').style.display=$('settings').style.display==='block'?'none':'block'};
-  document.addEventListener('click',e=>{if(!$('settings').contains(e.target)&&e.target!=$('gear'))$('settings').style.display='none'});
-  $('colorPick').oninput=e=>document.documentElement.style.setProperty('--primary',e.target.value);
-  $('toggleSQ').onclick=()=>{$('toggleSQ').textContent=`Xáo câu hỏi: ${shuffleQ=!shuffleQ?'Tắt':'Bật'}`;};
-  $('toggleSA').onclick=()=>{$('toggleSA').textContent=`Xáo đáp án: ${shuffleA=!shuffleA?'Tắt':'Bật'}`;};
-  $('toggleSpell').onclick=()=>{$('nameInp').spellcheck=(spell=!spell);$('toggleSpell').textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`;};
-  $('fsBtn').onclick=()=>{const c=$('card');if(!document.fullscreenElement){c.requestFullscreen();$('fsBtn').textContent='Thoát FS';}else{document.exitFullscreen();$('fsBtn').textContent='Toàn màn [...]';
+  // SETTINGS
+  $('gear').onclick=function(e){
+    e.stopPropagation();
+    $('settings').style.display=$('settings').style.display==='block'?'none':'block';
+  };
+  document.addEventListener('click',function(e){
+    if(!$('settings').contains(e.target)&&e.target!=$('gear'))$('settings').style.display='none'
+  });
+  $('colorPick').oninput=function(e){
+    document.documentElement.style.setProperty('--primary',e.target.value);
+  };
+  $('toggleSQ').onclick=function(){
+    shuffleQ=!shuffleQ; this.textContent=`Xáo câu hỏi: ${shuffleQ?'Bật':'Tắt'}`;
+  };
+  $('toggleSA').onclick=function(){
+    shuffleA=!shuffleA; this.textContent=`Xáo đáp án: ${shuffleA?'Bật':'Tắt'}`;
+  };
+  $('toggleSpell').onclick=function(){
+    spell=!spell; $('nameInp').spellcheck=spell; this.textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`;
+  };
+  $('fsBtn').onclick=function(){
+    const c=$('card');
+    if(!document.fullscreenElement){
+      c.requestFullscreen();$('fsBtn').textContent='Thoát FS';
+    }else{
+      document.exitFullscreen();$('fsBtn').textContent='Toàn màn hình';
+    }
+  };
 
-  /* SETUP */
-  $('modeBtn').onclick=()=>{const m=$('manual').classList.toggle('hidden');$('bulk').classList.toggle('hidden');$('modeBtn').textContent=m?'Nhập nhanh':'Nhập thủ công';};
+  // SETUP
+  $('modeBtn').onclick=function(){
+    const m=$('manual').classList.toggle('hidden');
+    $('bulk').classList.toggle('hidden');
+    $('modeBtn').textContent=m?'Nhập nhanh':'Nhập thủ công';
+  };
 
-  function resetManual(){
-    $('qInp').value='';[...'0123'].forEach(i=>$('a'+i).value='');$('correctSel').value=0;
-    $('imgInp').value='';$('imgPreview').classList.add('hidden');$('clearImg').classList.add('hidden'); editIndex=null;
-  }
-
-  $('addBtn').onclick=()=>{
+  $('addBtn').onclick=function(){
     const qText=$('qInp').value.trim();
     const opts=[...'0123'].map(i=>$('a'+i).value.trim());
     const ci=+$('correctSel').value;
@@ -216,21 +249,26 @@ document.addEventListener('DOMContentLoaded',()=>{
     updateCount(); resetManual();
   };
 
-  $('importBtn').onclick = () => {
+  $('importBtn').onclick = function() {
     qs=[]; const blocks=$('bulkArea').value.trim().split(/\n\s*\n/);
     const optRx=/^\s*(\*)?\s*([A-D])\s*[\.\/:\)\-]?\s*(.+)$/i;
-    blocks.forEach(b=>{const lines=b.split('\n').map(l=>l.trim()).filter(Boolean);
-      if(lines.length<2) return; const question=lines[0].replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.\/:\)\-]?\s*/i,'').trim();
+    blocks.forEach(b=>{
+      const lines=b.split('\n').map(l=>l.trim()).filter(Boolean);
+      if(lines.length<2) return;
+      const question=lines[0].replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.\/:\)\-]?\s*/i,'').trim();
       const opts=new Array(4); let correct=0;
-      lines.slice(1).forEach(line=>{const m=line.match(optRx);if(!m) return; const idx=m[2].toUpperCase().charCodeAt(0)-65; opts[idx]=m[3].trim(); if(m[1])correct=idx;});
+      lines.slice(1).forEach(line=>{
+        const m=line.match(optRx);if(!m) return;
+        const idx=m[2].toUpperCase().charCodeAt(0)-65; opts[idx]=m[3].trim(); if(m[1])correct=idx;
+      });
       if(opts.filter(Boolean).length===4) qs.push({question,options:opts,correct,image:null});
     });
     saveToStorage();
     $('bulkArea').value=''; updateCount();
   };
 
-  $('viewBtn').onclick=()=>{ renderView(); show('view'); };
-  $('backSetup').onclick=()=>show('setup');
+  $('viewBtn').onclick=function(){ renderView(); show('view'); };
+  $('backSetup').onclick=function(){ show('setup'); };
 
   function renderView(){
     const list=$('viewList'); list.innerHTML='';
@@ -240,7 +278,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(q.image) html+=`<img src="${q.image}" style="max-width:100%;margin:12px 0;border-radius:var(--radius)">`;
       card.innerHTML=html;
       const act=document.createElement('div'); act.className='actions';
-      const e=document.createElement('span'); e.textContent='✎'; e.onclick=()=>{
+      const e=document.createElement('span'); e.textContent='✎'; e.onclick=function(){
         show('setup'); if($('manual').classList.contains('hidden')) $('modeBtn').click();
         $('qInp').value=q.question; q.options.forEach((opt,j)=>$('a'+j).value=opt);
         $('correctSel').value=q.correct;
@@ -249,16 +287,16 @@ document.addEventListener('DOMContentLoaded',()=>{
         saveToStorage();
         updateCount();
       };
-      const d=document.createElement('span'); d.textContent='✖'; d.onclick=()=>{qs.splice(i,1); saveToStorage(); renderView(); updateCount();};
+      const d=document.createElement('span'); d.textContent='✖'; d.onclick=function(){qs.splice(i,1); saveToStorage(); renderView(); updateCount();};
       act.append(e,d); card.appendChild(act);
       list.appendChild(card);
     });
-
     // Nút xóa tất cả: chỉ render khi có câu hỏi
     const wrap = $('clearAllWrap');
     wrap.innerHTML = '';
     if(qs.length) {
       const clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
       clearBtn.textContent = 'Xóa tất cả';
       clearBtn.className = 'btn';
       clearBtn.style.background = '#e11d48';
@@ -275,8 +313,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   }
 
-  /* QUIZ */
-  const renderQuiz=()=>{
+  // QUIZ
+  function renderQuiz(){
     const list=$('quizList'); list.innerHTML=''; score=0;
     qs.forEach((q,i)=>{
       const card=document.createElement('div'); card.className='qcard';
@@ -286,26 +324,23 @@ document.addEventListener('DOMContentLoaded',()=>{
       const wrap=document.createElement('div'); wrap.className='optwrap';
       q.options.forEach((o,j)=>{
         const op=document.createElement('div'); op.className='opt'; op.textContent=`${String.fromCharCode(65+j)}. ${o}`;
-        op.onclick=()=>{wrap.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));op.classList.add('selected');};
+        op.onclick=function(){wrap.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));op.classList.add('selected');};
         wrap.appendChild(op);
       });
       card.appendChild(wrap); list.appendChild(card);
     });
-  };
-  $('submitBtn').onclick=()=>{
+  }
+  $('submitBtn').onclick=function(){
     document.querySelectorAll('#quizList .qcard').forEach((c,i)=>{
       const sel=c.querySelector('.opt.selected'); if(sel && sel.textContent.startsWith(String.fromCharCode(65+qs[i].correct)+'.')) score++;
     });
     $('resultTxt').textContent=`${$('nameInp').value}, bạn đúng ${score}/${qs.length} câu.`;
     show('result');
   };
-  $('retryBtn').onclick=()=>{ renderQuiz(); show('quiz'); };
-  $('homeBtn').onclick=()=>{ qs=[]; score=0; $('nameInp').value=''; updateCount(); resetManual(); show('setup'); saveToStorage(); };
+  $('retryBtn').onclick=function(){ renderQuiz(); show('quiz'); };
+  $('homeBtn').onclick=function(){ qs=[]; score=0; $('nameInp').value=''; updateCount(); resetManual(); show('setup'); saveToStorage(); };
 
-  /* INIT */
-  for(let i=0;i<4;i++){ const o=document.createElement('option'); o.value=i; o.textContent=String.fromCharCode(65+i); $('correctSel').appendChild(o);}
-  updateCount();
-});
+})();
 </script>
 </body>
 </html>
