@@ -12,7 +12,7 @@
     .card{width:90vw;max-width:880px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;position:relative}
     header{background:linear-gradient(135deg,var(--primary)0%,var(--primary-dark)100%);padding:20px;color:#fff;display:flex;justify-content:center;align-items:center;position:relative}
     header h1{margin:0;font-size:1.75rem;font-weight:600}
-    #gear,#userBtn{position:absolute;top:18px;width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:20px;color:#fff;cursor:pointer;transition:var(--t)}
+    #gear,#userBtn{position:absolute;top:18px;width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:[...]
     #gear{right:20px}#userBtn{left:20px}#gear:hover,#userBtn:hover{background:rgba(255,255,255,.25)}
     #settings{position:absolute;top:74px;right:20px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;width:240px;display:none;z-index:30}
     #settings .btn{width:100%;margin-top:10px}
@@ -39,6 +39,16 @@
     /* Image preview */
     #imgPreview { max-width: 100%; max-height: 150px; margin-top: 6px; border-radius: var(--radius); }
     .remove-img { margin-left: 8px; cursor: pointer; color: #e11d48; background: none; border: none; font-size: 14px; }
+    /* Nút xóa tất cả */
+    .danger-btn {
+      background: #e11d48 !important;
+      color: #fff;
+      margin-bottom: 10px;
+      margin-top: 4px;
+    }
+    .danger-btn:hover {
+      background: #b91c1c !important;
+    }
   </style>
 </head>
 <body>
@@ -84,6 +94,8 @@
 <div id="view" class="screen hidden">
   <h2 style="margin-bottom:14px">Đề hiện tại</h2>
   <div id="viewList"></div>
+  <!-- Nút xóa tất cả sẽ được render ở đây -->
+  <button id="clearAllBtn" class="btn danger-btn">Xóa tất cả</button>
   <button id="backSetup" class="btn" style="background:#64748b">Quay lại chỉnh đề</button>
 </div>
 
@@ -117,6 +129,21 @@
 document.addEventListener('DOMContentLoaded',()=>{
   const $=id=>document.getElementById(id);
   let qs=[],score=0,shuffleQ=true,shuffleA=true,spell=true, editIndex=null;
+  const LS_KEY = 'tao-cau-hoi-trac-nghiem-qs';
+
+  // --- Lưu và khôi phục dữ liệu ---
+  function saveToStorage() {
+    localStorage.setItem(LS_KEY, JSON.stringify(qs));
+  }
+  function loadFromStorage() {
+    try {
+      const data = JSON.parse(localStorage.getItem(LS_KEY));
+      if(Array.isArray(data)) qs = data;
+    } catch {}
+  }
+  // Khôi phục khi load trang
+  loadFromStorage();
+
   const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}};
   const updateCount=()=>$('count').textContent=`${qs.length} câu hỏi`;
   const screens={setup:$('setup'),view:$('view'),quiz:$('quiz'),result:$('result')};
@@ -160,7 +187,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('toggleSQ').onclick=()=>{$('toggleSQ').textContent=`Xáo câu hỏi: ${shuffleQ=!shuffleQ?'Tắt':'Bật'}`;};
   $('toggleSA').onclick=()=>{$('toggleSA').textContent=`Xáo đáp án: ${shuffleA=!shuffleA?'Tắt':'Bật'}`;};
   $('toggleSpell').onclick=()=>{$('nameInp').spellcheck=(spell=!spell);$('toggleSpell').textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`;};
-  $('fsBtn').onclick=()=>{const c=$('card');if(!document.fullscreenElement){c.requestFullscreen();$('fsBtn').textContent='Thoát FS';}else{document.exitFullscreen();$('fsBtn').textContent='Toàn màn hình';}};
+  $('fsBtn').onclick=()=>{const c=$('card');if(!document.fullscreenElement){c.requestFullscreen();$('fsBtn').textContent='Thoát FS';}else{document.exitFullscreen();$('fsBtn').textContent='Toàn màn [...]';
 
   /* SETUP */
   $('modeBtn').onclick=()=>{const m=$('manual').classList.toggle('hidden');$('bulk').classList.toggle('hidden');$('modeBtn').textContent=m?'Nhập nhanh':'Nhập thủ công';};
@@ -170,6 +197,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     $('imgInp').value='';$('imgPreview').classList.add('hidden');$('clearImg').classList.add('hidden'); editIndex=null;
   }
 
+  // --- Thêm, sửa, xóa, import đều lưu lại ---
   $('addBtn').onclick=()=>{
     const qText=$('qInp').value.trim();
     const opts=[...'0123'].map(i=>$('a'+i).value.trim());
@@ -179,6 +207,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const questionObj = {question:qText,options:opts,correct:ci,image: imgSrc};
     if(editIndex!=null){ qs[editIndex]=questionObj; }
     else{ qs.push(questionObj); }
+    saveToStorage();
     updateCount(); resetManual();
   };
 
@@ -191,11 +220,22 @@ document.addEventListener('DOMContentLoaded',()=>{
       lines.slice(1).forEach(line=>{const m=line.match(optRx);if(!m) return; const idx=m[2].toUpperCase().charCodeAt(0)-65; opts[idx]=m[3].trim(); if(m[1])correct=idx;});
       if(opts.filter(Boolean).length===4) qs.push({question,options:opts,correct,image:null});
     });
+    saveToStorage();
     $('bulkArea').value=''; updateCount();
   };
 
   $('viewBtn').onclick=()=>{ renderView(); show('view'); };
   $('backSetup').onclick=()=>show('setup');
+
+  // --- Nút "Xóa tất cả" ---
+  $('clearAllBtn').onclick = function() {
+    if(confirm('Bạn có chắc muốn xóa toàn bộ đề?')) {
+      qs = [];
+      localStorage.removeItem(LS_KEY);
+      renderView();
+      updateCount();
+    }
+  };
 
   const renderView=()=>{
     const list=$('viewList'); list.innerHTML='';
@@ -211,8 +251,10 @@ document.addEventListener('DOMContentLoaded',()=>{
         $('correctSel').value=q.correct;
         if(q.image){ $('imgPreview').src=q.image; $('imgPreview').classList.remove('hidden'); $('clearImg').classList.remove('hidden'); }
         editIndex=i; qs.splice(i,1);
+        saveToStorage();
+        updateCount();
       };
-      const d=document.createElement('span'); d.textContent='✖'; d.onclick=()=>{qs.splice(i,1); renderView(); updateCount();};
+      const d=document.createElement('span'); d.textContent='✖'; d.onclick=()=>{qs.splice(i,1); saveToStorage(); renderView(); updateCount();};
       act.append(e,d); card.appendChild(act);
       list.appendChild(card);
     });
@@ -243,11 +285,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     show('result');
   };
   $('retryBtn').onclick=()=>{ renderQuiz(); show('quiz'); };
-  $('homeBtn').onclick=()=>{ qs=[]; score=0; $('nameInp').value=''; updateCount(); resetManual(); show('setup'); };
+  $('homeBtn').onclick=()=>{ qs=[]; score=0; $('nameInp').value=''; updateCount(); resetManual(); show('setup'); saveToStorage(); };
 
   /* INIT */
-  for(let i=0;i<4;i++){ const o=document.createElement('option'); o.value=i; o.textContent=String.fromCharCode(65+i); $('correctSel').appendChild(o);}  
+  for(let i=0;i<4;i++){ const o=document.createElement('option'); o.value=i; o.textContent=String.fromCharCode(65+i); $('correctSel').appendChild(o);}
   updateCount();
+  if(qs.length) updateCount();
 });
 </script></body>
 </html>
