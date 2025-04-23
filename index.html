@@ -1,22 +1,35 @@
-<!DOCTYPE html><html lang="vi">
+<!DOCTYPE html>
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hệ Thống Trắc Nghiệm</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
-    :root{--primary:#6366f1;--primary-dark:#4f46e5;--bg:#f1f5f9;--card:#fff;--txt:#1e293b;--radius:14px;--shadow:0 6px 18px rgb(0 0 0/.08);--t:all .25s cubic-bezier(.4,0,.2,1)}
+    :root{
+      --primary:#6366f1;
+      --primary-dark:#4f46e5;
+      --bg:#f1f5f9;
+      --card:#fff;
+      --txt:#1e293b;
+      --radius:14px;
+      --shadow:0 6px 18px rgb(0 0 0/.08);
+      --t:all .25s cubic-bezier(.4,0,.2,1)
+    }
     *,*::before,*::after{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:"Inter",sans-serif;background:var(--bg);color:var(--txt)}
     #app{height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
     .card{width:90vw;max-width:880px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;position:relative}
     header{background:linear-gradient(135deg,var(--primary)0%,var(--primary-dark)100%);padding:20px;color:#fff;display:flex;justify-content:center;align-items:center;position:relative}
     header h1{margin:0;font-size:1.75rem;font-weight:600}
-    #gear,#userBtn{position:absolute;top:18px;width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:[...]
-    #gear{right:20px}#userBtn{left:20px}#gear:hover,#userBtn:hover{background:rgba(255,255,255,.25)}
+    #gear,#userBtn{position:absolute;top:18px;width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:22px;cursor:pointer;}
+    #gear{right:20px}
+    #userBtn{left:20px}
+    #gear:hover,#userBtn:hover{background:rgba(255,255,255,.25)}
     #settings{position:absolute;top:74px;right:20px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;width:240px;display:none;z-index:30}
     #settings .btn{width:100%;margin-top:10px}
-    .screen{padding:28px;overflow-y:auto;flex:1;animation:fadeSlide .4s}.hidden{display:none}
+    .screen{padding:28px;overflow-y:auto;flex:1;animation:fadeSlide .4s}
+    .hidden{display:none}
     input,textarea,select{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:var(--radius);font-size:1rem;margin:10px 0;transition:var(--t)}
     input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgb(99 102 241/.25)}
     .btn{background:var(--primary);color:#fff;border:none;border-radius:var(--radius);padding:12px 20px;font-weight:500;cursor:pointer;transition:var(--t);box-shadow:0 2px 6px rgb(0 0 0/.1)}
@@ -25,7 +38,8 @@
     .qcard:hover{border-color:var(--primary);transform:translateY(-2px)}
     .qcard h3{margin:0 0 14px;font-size:1.05rem;font-weight:600}
     .actions{position:absolute;top:10px;right:12px;display:flex;gap:10px;font-size:18px;color:#64748b}
-    .actions span{cursor:pointer;transition:var(--t)}.actions span:hover{color:var(--primary);transform:scale(1.15)}
+    .actions span{cursor:pointer;transition:var(--t)}
+    .actions span:hover{color:var(--primary);transform:scale(1.15)}
     .optwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .opt{border:2px solid var(--primary);border-radius:var(--radius);padding:12px;text-align:center;background:#f8fafc;cursor:pointer;transition:var(--t);user-select:none}
     .opt.selected{background:var(--primary);color:#fff;transform:scale(1.03)}
@@ -34,21 +48,14 @@
     #closeLogin{position:absolute;top:10px;right:12px;font-size:22px;color:#64748b;cursor:pointer;transition:var(--t)}
     #closeLogin:hover{color:var(--primary);transform:scale(1.15)}
     @keyframes fadeSlide{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
-    @media(max-width:640px){.card{width:100vw;border-radius:0}.optwrap{grid-template-columns:1fr}}
+    @media(max-width:640px){
+      .card{width:100vw;border-radius:0}
+      .optwrap{grid-template-columns:1fr}
+    }
     .hidden { display: none !important; }
     /* Image preview */
     #imgPreview { max-width: 100%; max-height: 150px; margin-top: 6px; border-radius: var(--radius); }
     .remove-img { margin-left: 8px; cursor: pointer; color: #e11d48; background: none; border: none; font-size: 14px; }
-    /* Nút xóa tất cả */
-    .danger-btn {
-      background: #e11d48 !important;
-      color: #fff;
-      margin-bottom: 10px;
-      margin-top: 4px;
-    }
-    .danger-btn:hover {
-      background: #b91c1c !important;
-    }
   </style>
 </head>
 <body>
@@ -58,80 +65,79 @@
       <button id="userBtn">👤</button>
       <h1>Hệ Thống Trắc Nghiệm</h1>
       <button id="gear">⚙️</button>
-    </header><!-- LOGIN -->
-<div id="login" class="hidden">
-  <div id="loginBox">
-    <span id="closeLogin">✖</span>
-    <h2 style="margin:28px 0 18px">Nhập tên người chơi</h2>
-    <input id="nameInp" placeholder="Tên của bạn" spellcheck>
-    <button id="startBtn" class="btn" style="margin-top:12px;width:100%">Bắt đầu</button>
+    </header>
+    <!-- LOGIN -->
+    <div id="login" class="hidden">
+      <div id="loginBox">
+        <span id="closeLogin">✖</span>
+        <h2 style="margin:28px 0 18px">Nhập tên người chơi</h2>
+        <input id="nameInp" placeholder="Tên của bạn" spellcheck>
+        <button id="startBtn" class="btn" style="margin-top:12px;width:100%">Bắt đầu</button>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <div id="setup" class="screen">
+      <button id="modeBtn" class="btn" style="background:#38bdf8">Nhập nhanh</button>
+      <div id="manual" style="margin-top:12px">
+        <input id="qInp" placeholder="Câu hỏi">
+        <input id="a0" placeholder="Đáp án A"><input id="a1" placeholder="Đáp án B">
+        <input id="a2" placeholder="Đáp án C"><input id="a3" placeholder="Đáp án D">
+        <select id="correctSel"></select>
+        <!-- Image upload -->
+        <input id="imgInp" type="file" accept="image/*">
+        <img id="imgPreview" class="hidden" />
+        <button id="clearImg" class="remove-img hidden">Xóa ảnh</button>
+        <button id="addBtn" class="btn" style="margin-top:6px">Thêm câu hỏi</button>
+      </div>
+      <div id="bulk" class="hidden" style="margin-top:12px">
+        <textarea id="bulkArea" rows="6" placeholder="Dán định dạng nhanh…"></textarea>
+        <button id="importBtn" class="btn" style="margin-top:6px">Import nhanh</button>
+      </div>
+      <p id="count" style="margin-top:10px;font-weight:500"></p>
+      <button id="viewBtn" class="btn" style="margin-top:6px;background:#1163ff">Đề hiện tại</button>
+    </div>
+
+    <!-- VIEW -->
+    <div id="view" class="screen hidden">
+      <h2 style="margin-bottom:14px">Đề hiện tại</h2>
+      <div id="viewList"></div>
+      <div id="clearAllWrap"></div>
+      <button id="backSetup" class="btn" style="background:#64748b">Quay lại chỉnh đề</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="quiz" class="screen hidden">
+      <div id="quizList"></div>
+      <button id="submitBtn" class="btn" style="margin-top:10px">Nộp bài</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result" class="screen hidden">
+      <h2>Kết quả</h2>
+      <p id="resultTxt" style="font-size:1.2rem;font-weight:600"></p>
+      <div style="margin-top:14px;display:flex;gap:12px">
+        <button id="retryBtn" class="btn" style="flex:1">Làm lại</button>
+        <button id="homeBtn" class="btn" style="flex:1;background:#64748b">Trang chủ</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settings">
+      <button id="toggleSQ" class="btn">Xáo câu hỏi: Bật</button>
+      <button id="toggleSA" class="btn">Xáo đáp án: Bật</button>
+      <button id="toggleSpell" class="btn">Spellcheck: Bật</button>
+      <button id="fsBtn" class="btn">Toàn màn hình</button>
+      <input id="colorPick" type="color" value="#6366f1" style="margin-top:12px">
+    </div>
   </div>
 </div>
-
-<!-- SETUP -->
-<div id="setup" class="screen">
-  <button id="modeBtn" class="btn" style="background:#38bdf8">Nhập nhanh</button>
-  <div id="manual" style="margin-top:12px">
-    <input id="qInp" placeholder="Câu hỏi">
-    <input id="a0" placeholder="Đáp án A"><input id="a1" placeholder="Đáp án B">
-    <input id="a2" placeholder="Đáp án C"><input id="a3" placeholder="Đáp án D">
-    <select id="correctSel"></select>
-    <!-- Image upload -->
-    <input id="imgInp" type="file" accept="image/*">
-    <img id="imgPreview" class="hidden" />
-    <button id="clearImg" class="remove-img hidden">Xóa ảnh</button>
-    <button id="addBtn" class="btn" style="margin-top:6px">Thêm câu hỏi</button>
-  </div>
-  <div id="bulk" class="hidden" style="margin-top:12px">
-    <textarea id="bulkArea" rows="6" placeholder="Dán định dạng nhanh…"></textarea>
-    <button id="importBtn" class="btn" style="margin-top:6px">Import nhanh</button>
-  </div>
-  <p id="count" style="margin-top:10px;font-weight:500"></p>
-  <button id="viewBtn" class="btn" style="margin-top:6px;background:#1163ff">Đề hiện tại</button>
-</div>
-
-<!-- VIEW -->
-<div id="view" class="screen hidden">
-  <h2 style="margin-bottom:14px">Đề hiện tại</h2>
-  <div id="viewList"></div>
-  <!-- Nút xóa tất cả sẽ được render ở đây -->
-  <button id="clearAllBtn" class="btn danger-btn">Xóa tất cả</button>
-  <button id="backSetup" class="btn" style="background:#64748b">Quay lại chỉnh đề</button>
-</div>
-
-<!-- QUIZ -->
-<div id="quiz" class="screen hidden">
-  <div id="quizList"></div>
-  <button id="submitBtn" class="btn" style="margin-top:10px">Nộp bài</button>
-</div>
-
-<!-- RESULT -->
-<div id="result" class="screen hidden">
-  <h2>Kết quả</h2>
-  <p id="resultTxt" style="font-size:1.2rem;font-weight:600"></p>
-  <div style="margin-top:14px;display:flex;gap:12px">
-    <button id="retryBtn" class="btn" style="flex:1">Làm lại</button>
-    <button id="homeBtn" class="btn" style="flex:1;background:#64748b">Trang chủ</button>
-  </div>
-</div>
-
-<!-- SETTINGS -->
-<div id="settings">
-  <button id="toggleSQ" class="btn">Xáo câu hỏi: Bật</button>
-  <button id="toggleSA" class="btn">Xáo đáp án: Bật</button>
-  <button id="toggleSpell" class="btn">Spellcheck: Bật</button>
-  <button id="fsBtn" class="btn">Toàn màn hình</button>
-  <input id="colorPick" type="color" value="#6366f1" style="margin-top:12px">
-</div>
-
-  </div>
-</div><script>
+<script>
 document.addEventListener('DOMContentLoaded',()=>{
   const $=id=>document.getElementById(id);
   let qs=[],score=0,shuffleQ=true,shuffleA=true,spell=true, editIndex=null;
   const LS_KEY = 'tao-cau-hoi-trac-nghiem-qs';
 
-  // --- Lưu và khôi phục dữ liệu ---
   function saveToStorage() {
     localStorage.setItem(LS_KEY, JSON.stringify(qs));
   }
@@ -197,7 +203,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     $('imgInp').value='';$('imgPreview').classList.add('hidden');$('clearImg').classList.add('hidden'); editIndex=null;
   }
 
-  // --- Thêm, sửa, xóa, import đều lưu lại ---
   $('addBtn').onclick=()=>{
     const qText=$('qInp').value.trim();
     const opts=[...'0123'].map(i=>$('a'+i).value.trim());
@@ -227,17 +232,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('viewBtn').onclick=()=>{ renderView(); show('view'); };
   $('backSetup').onclick=()=>show('setup');
 
-  // --- Nút "Xóa tất cả" ---
-  $('clearAllBtn').onclick = function() {
-    if(confirm('Bạn có chắc muốn xóa toàn bộ đề?')) {
-      qs = [];
-      localStorage.removeItem(LS_KEY);
-      renderView();
-      updateCount();
-    }
-  };
-
-  const renderView=()=>{
+  function renderView(){
     const list=$('viewList'); list.innerHTML='';
     qs.forEach((q,i)=>{
       const card=document.createElement('div'); card.className='qcard';
@@ -258,7 +253,27 @@ document.addEventListener('DOMContentLoaded',()=>{
       act.append(e,d); card.appendChild(act);
       list.appendChild(card);
     });
-  };
+
+    // Nút xóa tất cả: chỉ render khi có câu hỏi
+    const wrap = $('clearAllWrap');
+    wrap.innerHTML = '';
+    if(qs.length) {
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'Xóa tất cả';
+      clearBtn.className = 'btn';
+      clearBtn.style.background = '#e11d48';
+      clearBtn.style.marginBottom = '10px';
+      clearBtn.onclick = function () {
+        if (confirm('Bạn có chắc muốn xóa toàn bộ đề?')) {
+          qs = [];
+          localStorage.removeItem(LS_KEY);
+          renderView();
+          updateCount();
+        }
+      };
+      wrap.appendChild(clearBtn);
+    }
+  }
 
   /* QUIZ */
   const renderQuiz=()=>{
@@ -290,7 +305,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   /* INIT */
   for(let i=0;i<4;i++){ const o=document.createElement('option'); o.value=i; o.textContent=String.fromCharCode(65+i); $('correctSel').appendChild(o);}
   updateCount();
-  if(qs.length) updateCount();
 });
-</script></body>
+</script>
+</body>
 </html>
