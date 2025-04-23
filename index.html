@@ -1,312 +1,253 @@
-<!DOCTYPE html>  <html lang="vi">  
-<head>  
-  <meta charset="UTF-8" />  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />  
-  <title>Hệ Thống Trắc Nghiệm</title>  
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>  
-  <style>  
-    :root{--primary:#6366f1;--primary-dark:#4f46e5;--bg:#f1f5f9;--card:#fff;--txt:#1e293b;--radius:14px;--shadow:0 6px 18px rgb(0 0 0/.08);--t:all .25s cubic-bezier(.4,0,.2,1)}  
-    *,*::before,*::after{box-sizing:border-box}  
-    html,body{height:100%;margin:0;font-family:"Inter",sans-serif;background:var(--bg);color:var(--txt)}  
-    #app{height:100%;display:flex;align-items:center;justify-content:center;padding:16px}  
-    .card{width:90vw;max-width:880px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;position:relative}  
-    header{background:linear-gradient(135deg,var(--primary)0%,var(--primary-dark)100%);padding:20px;color:#fff;display:flex;justify-content:center;align-items:center;position:relative}  
-    header h1{margin:0;font-size:1.75rem;font-weight:600}  
-    #gear,#userBtn{position:absolute;top:18px;width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:20px;color:#fff;cursor:pointer;transition:var(--t)}  
-    #gear{right:20px}#userBtn{left:20px}#gear:hover,#userBtn:hover{background:rgba(255,255,255,.25)}  
-    #settings{position:absolute;top:74px;right:20px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;width:240px;display:none;z-index:30}  
-    #settings .btn{width:100%;margin-top:10px}  
-    .screen{padding:28px;overflow-y:auto;flex:1;animation:fadeSlide .4s}.hidden{display:none}  
-    input,textarea,select{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:var(--radius);font-size:1rem;margin:10px 0;transition:var(--t)}  
-    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgb(99 102 241/.25)}  
-    .btn{background:var(--primary);color:#fff;border:none;border-radius:var(--radius);padding:12px 20px;font-weight:500;cursor:pointer;transition:var(--t);box-shadow:0 2px 6px rgb(0 0 0/.1)}  
-    .btn:hover{background:var(--primary-dark);transform:translateY(-1px)}  
-    .qcard{background:#fff;border:2px solid transparent;border-radius:var(--radius);padding:18px;margin-bottom:20px;box-shadow:var(--shadow);position:relative;transition:var(--t)}  
-    .qcard:hover{border-color:var(--primary);transform:translateY(-2px)}  
-    .qcard h3{margin:0 0 14px;font-size:1.05rem;font-weight:600}  
-    .actions{position:absolute;top:10px;right:12px;display:flex;gap:10px;font-size:18px;color:#64748b}  
-    .actions span{cursor:pointer;transition:var(--t)}.actions span:hover{color:var(--primary);transform:scale(1.15)}  
-    .optwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}  
-    .opt{border:2px solid var(--primary);border-radius:var(--radius);padding:12px;text-align:center;background:#f8fafc;cursor:pointer;transition:var(--t);user-select:none}  
-    .opt.selected{background:var(--primary);color:#fff;transform:scale(1.03)}  
-    #login{position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:40}  
-    #loginBox{background:#fff;padding:32px;border-radius:var(--radius);width:90%;max-width:380px;box-shadow:var(--shadow);text-align:center;position:relative}  
-    #closeLogin{position:absolute;top:10px;right:12px;font-size:22px;color:#64748b;cursor:pointer;transition:var(--t)}  
-    #closeLogin:hover{color:var(--primary);transform:scale(1.15)}  
-    @keyframes fadeSlide{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}  
-    @media(max-width:640px){.card{width:100vw;border-radius:0}.optwrap{grid-template-columns:1fr}}  
-    .hidden { display: none !important; }  
-  </style>  
-</head>  
-<body>  
-<div id="app">  
-  <div id="card" class="card">  
-    <header>  
-      <button id="userBtn">👤</button>  
-      <h1>Hệ Thống Trắc Nghiệm</h1>  
-      <button id="gear">⚙️</button>  
-    </header>  <!-- LOGIN -->  
-<div id="login" class="hidden">  
-  <div id="loginBox">  
-    <span id="closeLogin">✖</span>  
-    <h2 style="margin:28px 0 18px">Nhập tên người chơi</h2>  
-    <input id="nameInp" placeholder="Tên của bạn" spellcheck>  
-    <button id="startBtn" class="btn" style="margin-top:12px;width:100%">Bắt đầu</button>  
-  </div>  
-</div>  
-
-<!-- SETUP -->  
-<div id="setup" class="screen">  
-  <button id="modeBtn" class="btn" style="background:#38bdf8">Nhập nhanh</button>  
-  <div id="manual" style="margin-top:12px">  
-    <input id="qInp" placeholder="Câu hỏi">  
-    <input id="a0" placeholder="Đáp án A"><input id="a1" placeholder="Đáp án B">  
-    <input id="a2" placeholder="Đáp án C"><input id="a3" placeholder="Đáp án D">  
-    <select id="correctSel"></select>  
-    <button id="addBtn" class="btn" style="margin-top:6px">Thêm câu hỏi</button>  
-  </div>  
-  <div id="bulk" class="hidden" style="margin-top:12px">  
-    <textarea id="bulkArea" rows="6" placeholder="Dán định dạng nhanh…"></textarea>  
-    <button id="importBtn" class="btn" style="margin-top:6px">Import nhanh</button>  
-  </div>  
-  <p id="count" style="margin-top:10px;font-weight:500"></p>  
-  <button id="viewBtn" class="btn" style="margin-top:6px;background:#1163ff">Đề hiện tại</button>  
-</div>  
-
-<!-- VIEW -->  
-<div id="view" class="screen hidden">  
-  <h2 style="margin-bottom:14px">Đề hiện tại</h2>  
-  <div id="viewList"></div>  
-  <button id="backSetup" class="btn" style="background:#64748b">Quay lại chỉnh đề</button>  
-</div>  
-
-<!-- QUIZ -->  
-<div id="quiz" class="screen hidden">  
-  <div id="quizList"></div>  
-  <button id="submitBtn" class="btn" style="margin-top:10px">Nộp bài</button>  
-</div>  
-
-<!-- RESULT -->  
-<div id="result" class="screen hidden">  
-  <h2>Kết quả</h2>  
-  <p id="resultTxt" style="font-size:1.2rem;font-weight:600"></p>  
-  <div style="margin-top:14px;display:flex;gap:12px">  
-    <button id="retryBtn" class="btn" style="flex:1">Làm lại</button>  
-    <button id="homeBtn" class="btn" style="flex:1;background:#64748b">Trang chủ</button>  
-  </div>  
-</div>  
-
-<!-- SETTINGS -->  
-<div id="settings">  
-  <button id="toggleSQ" class="btn">Xáo câu hỏi: Bật</button>  
-  <button id="toggleSA" class="btn">Xáo đáp án: Bật</button>  
-  <button id="toggleSpell" class="btn">Spellcheck: Bật</button>  
-  <button id="fsBtn" class="btn">Toàn màn hình</button>  
-  <input id="colorPick" type="color" value="#6366f1" style="margin-top:12px">  
+<!DOCTYPE html><html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hệ Thống Trắc Nghiệm</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--primary:#6366f1;--primary-dark:#4f46e5;--bg:#f1f5f9;--card:#fff;--txt:#1e293b;--radius:14px;--shadow:0 6px 18px rgb(0 0 0/.08);--t:all .25s cubic-bezier(.4,0,.2,1)}
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Inter",sans-serif;background:var(--bg);color:var(--txt)}
+    #app{height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
+    .card{width:90vw;max-width:880px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;position:relative}
+    header{background:linear-gradient(135deg,var(--primary)0%,var(--primary-dark)100%);padding:20px;color:#fff;display:flex;justify-content:center;align-items:center;position:relative}
+    header h1{margin:0;font-size:1.75rem;font-weight:600}
+    #gear,#userBtn{position:absolute;top:18px;width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:grid;place-items:center;font-size:20px;color:#fff;cursor:pointer;transition:var(--t)}
+    #gear{right:20px}#userBtn{left:20px}#gear:hover,#userBtn:hover{background:rgba(255,255,255,.25)}
+    #settings{position:absolute;top:74px;right:20px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;width:240px;display:none;z-index:30}
+    #settings .btn{width:100%;margin-top:10px}
+    .screen{padding:28px;overflow-y:auto;flex:1;animation:fadeSlide .4s}.hidden{display:none}
+    input,textarea,select{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:var(--radius);font-size:1rem;margin:10px 0;transition:var(--t)}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgb(99 102 241/.25)}
+    .btn{background:var(--primary);color:#fff;border:none;border-radius:var(--radius);padding:12px 20px;font-weight:500;cursor:pointer;transition:var(--t);box-shadow:0 2px 6px rgb(0 0 0/.1)}
+    .btn:hover{background:var(--primary-dark);transform:translateY(-1px)}
+    .qcard{background:#fff;border:2px solid transparent;border-radius:var(--radius);padding:18px;margin-bottom:20px;box-shadow:var(--shadow);position:relative;transition:var(--t)}
+    .qcard:hover{border-color:var(--primary);transform:translateY(-2px)}
+    .qcard h3{margin:0 0 14px;font-size:1.05rem;font-weight:600}
+    .actions{position:absolute;top:10px;right:12px;display:flex;gap:10px;font-size:18px;color:#64748b}
+    .actions span{cursor:pointer;transition:var(--t)}.actions span:hover{color:var(--primary);transform:scale(1.15)}
+    .optwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .opt{border:2px solid var(--primary);border-radius:var(--radius);padding:12px;text-align:center;background:#f8fafc;cursor:pointer;transition:var(--t);user-select:none}
+    .opt.selected{background:var(--primary);color:#fff;transform:scale(1.03)}
+    #login{position:absolute;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:40}
+    #loginBox{background:#fff;padding:32px;border-radius:var(--radius);width:90%;max-width:380px;box-shadow:var(--shadow);text-align:center;position:relative}
+    #closeLogin{position:absolute;top:10px;right:12px;font-size:22px;color:#64748b;cursor:pointer;transition:var(--t)}
+    #closeLogin:hover{color:var(--primary);transform:scale(1.15)}
+    @keyframes fadeSlide{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+    @media(max-width:640px){.card{width:100vw;border-radius:0}.optwrap{grid-template-columns:1fr}}
+    .hidden { display: none !important; }
+    /* Image preview */
+    #imgPreview { max-width: 100%; max-height: 150px; margin-top: 6px; border-radius: var(--radius); }
+    .remove-img { margin-left: 8px; cursor: pointer; color: #e11d48; background: none; border: none; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="card" class="card">
+    <header>
+      <button id="userBtn">👤</button>
+      <h1>Hệ Thống Trắc Nghiệm</h1>
+      <button id="gear">⚙️</button>
+    </header><!-- LOGIN -->
+<div id="login" class="hidden">
+  <div id="loginBox">
+    <span id="closeLogin">✖</span>
+    <h2 style="margin:28px 0 18px">Nhập tên người chơi</h2>
+    <input id="nameInp" placeholder="Tên của bạn" spellcheck>
+    <button id="startBtn" class="btn" style="margin-top:12px;width:100%">Bắt đầu</button>
+  </div>
 </div>
 
-  </div>  
-</div>  <script>  
-document.addEventListener('DOMContentLoaded',()=>{  
-  const $=id=>document.getElementById(id);  
-  /* ========= STATE ========= */  
-  let qs=[],score=0,shuffleQ=true,shuffleA=true,spell=true;  
-  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}};  
-  const updateCount=()=>$('count').textContent=`${qs.length} câu hỏi`;  
-  const screens={setup:$('setup'),view:$('view'),quiz:$('quiz'),result:$('result')};  
-  const show=k=>Object.values(screens).forEach(s=>s.classList.toggle('hidden',s!==screens[k]));  
-  
-  /* ========= LOGIN ========= */  
-  $('userBtn').onclick=()=>$('login').classList.remove('hidden');  
-  $('closeLogin').onclick=()=>{ $('login').classList.add('hidden'); };  
-  $('login').onclick=e=>{  
-    if(e.target.id==='login')$('login').classList.add('hidden');  
-  };  
-  
-  $('startBtn').onclick=()=>{  
-    if(!$('nameInp').value.trim()) return alert('Nhập tên');  
-    $('login').classList.add('hidden');  
-    if(!qs.length) return alert('Hãy nhập câu hỏi trước!');  
-    if(shuffleQ)shuffle(qs);  
-    if(shuffleA)qs.forEach(q=>{  
-      const p=q.options.map((o,i)=>({o,i}));  
-      shuffle(p);  
-      q.options=p.map(x=>x.o);  
-      q.correct=p.findIndex(x=>x.i===q.correct)  
-    });  
-    renderQuiz();show('quiz');  
-  };  
-  
-  /* ========= SETTINGS ========= */  
-  $('gear').onclick=e=>{  
-    e.stopPropagation();  
-    $('settings').style.display=$('settings').style.display==='block'?'none':'block'  
-  };  
-  document.addEventListener('click',e=>{  
-    if(!$('settings').contains(e.target)&&e.target!=$('gear'))$('settings').style.display='none'  
-  });  
-  $('colorPick').oninput=e=>document.documentElement.style.setProperty('--primary',e.target.value);  
-  $('toggleSQ').onclick=()=>{  
-    shuffleQ=!shuffleQ;  
-    $('toggleSQ').textContent=`Xáo câu hỏi: ${shuffleQ?'Bật':'Tắt'}`  
-  };  
-  $('toggleSA').onclick=()=>{  
-    shuffleA=!shuffleA;  
-    $('toggleSA').textContent=`Xáo đáp án: ${shuffleA?'Bật':'Tắt'}`  
-  };  
-  $('toggleSpell').onclick=()=>{  
-    spell=!spell;  
-    $('nameInp').spellcheck=spell;  
-    $('toggleSpell').textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`  
-  };  
-  $('fsBtn').onclick=()=>{  
-    const c=$('card');  
-    if(!document.fullscreenElement){  
-      c.requestFullscreen();  
-      $('fsBtn').textContent='Thoát FS';  
-    }else{  
-      document.exitFullscreen();  
-      $('fsBtn').textContent='Toàn màn hình';  
-    }  
-  };  
-  
-  /* ========= SETUP ========= */  
-  $('modeBtn').onclick=()=>{  
-    $('manual').classList.toggle('hidden');  
-    $('bulk').classList.toggle('hidden');  
-    $('modeBtn').textContent=$('manual').classList.contains('hidden')?'Nhập thủ công':'Nhập nhanh'  
-  };  
-  $('addBtn').onclick=()=>{  
-    const q=$('qInp').value.trim(),  
-    opts=[...'0123'].map(i=>$('a'+i).value.trim()),  
-    ci=+$('correctSel').value;  
-    if(!q||opts.some(o=>!o))return alert('Thiếu dữ liệu');  
-    qs.push({question:q,options:opts,correct:ci});  
-    $('qInp').value='';  
-    [...'0123'].forEach(i=>$('a'+i).value='');  
-    updateCount();  
-  };  
-  /*Import*/
-$('importBtn').onclick = () => {
-  qs = [];
-  const blocks = $('bulkArea').value.trim().split(/\n\s*\n/);
-  // Thêm dấu '/' vào class phân cách
-  const optRx = /^\s*(\*)?\s*([A-D])\s*[\.\/\):\-]?\s*(.+)$/i;
+<!-- SETUP -->
+<div id="setup" class="screen">
+  <button id="modeBtn" class="btn" style="background:#38bdf8">Nhập nhanh</button>
+  <div id="manual" style="margin-top:12px">
+    <input id="qInp" placeholder="Câu hỏi">
+    <input id="a0" placeholder="Đáp án A"><input id="a1" placeholder="Đáp án B">
+    <input id="a2" placeholder="Đáp án C"><input id="a3" placeholder="Đáp án D">
+    <select id="correctSel"></select>
+    <!-- Image upload -->
+    <input id="imgInp" type="file" accept="image/*">
+    <img id="imgPreview" class="hidden" />
+    <button id="clearImg" class="remove-img hidden">Xóa ảnh</button>
+    <button id="addBtn" class="btn" style="margin-top:6px">Thêm câu hỏi</button>
+  </div>
+  <div id="bulk" class="hidden" style="margin-top:12px">
+    <textarea id="bulkArea" rows="6" placeholder="Dán định dạng nhanh…"></textarea>
+    <button id="importBtn" class="btn" style="margin-top:6px">Import nhanh</button>
+  </div>
+  <p id="count" style="margin-top:10px;font-weight:500"></p>
+  <button id="viewBtn" class="btn" style="margin-top:6px;background:#1163ff">Đề hiện tại</button>
+</div>
 
-  blocks.forEach(block => {
-    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
-    if (lines.length < 2) return;
+<!-- VIEW -->
+<div id="view" class="screen hidden">
+  <h2 style="margin-bottom:14px">Đề hiện tại</h2>
+  <div id="viewList"></div>
+  <button id="backSetup" class="btn" style="background:#64748b">Quay lại chỉnh đề</button>
+</div>
 
-    // Bổ sung '/' vào class phân tách để loại bỏ 1/ hoặc 1: hoặc 1. hoặc 1) hoặc 1- 
-    const question = lines[0]
-      .replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.\/\)\-]?\s*/i, '')
-      .trim();
+<!-- QUIZ -->
+<div id="quiz" class="screen hidden">
+  <div id="quizList"></div>
+  <button id="submitBtn" class="btn" style="margin-top:10px">Nộp bài</button>
+</div>
 
-    const opts = new Array(4);
-    let correct = 0;
+<!-- RESULT -->
+<div id="result" class="screen hidden">
+  <h2>Kết quả</h2>
+  <p id="resultTxt" style="font-size:1.2rem;font-weight:600"></p>
+  <div style="margin-top:14px;display:flex;gap:12px">
+    <button id="retryBtn" class="btn" style="flex:1">Làm lại</button>
+    <button id="homeBtn" class="btn" style="flex:1;background:#64748b">Trang chủ</button>
+  </div>
+</div>
 
-    lines.slice(1).forEach(line => {
-      const m = line.match(optRx);
-      if (!m) return;
-      const idx = m[2].toUpperCase().charCodeAt(0) - 65;
-      opts[idx] = m[3].trim();
-      if (m[1] === '*') correct = idx;
-    });
+<!-- SETTINGS -->
+<div id="settings">
+  <button id="toggleSQ" class="btn">Xáo câu hỏi: Bật</button>
+  <button id="toggleSA" class="btn">Xáo đáp án: Bật</button>
+  <button id="toggleSpell" class="btn">Spellcheck: Bật</button>
+  <button id="fsBtn" class="btn">Toàn màn hình</button>
+  <input id="colorPick" type="color" value="#6366f1" style="margin-top:12px">
+</div>
 
-    if (opts.filter(Boolean).length === 4) {
-      qs.push({ question, options: opts, correct });
+  </div>
+</div><script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const $=id=>document.getElementById(id);
+  let qs=[],score=0,shuffleQ=true,shuffleA=true,spell=true, editIndex=null;
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}};
+  const updateCount=()=>$('count').textContent=`${qs.length} câu hỏi`;
+  const screens={setup:$('setup'),view:$('view'),quiz:$('quiz'),result:$('result')};
+  const show=k=>Object.values(screens).forEach(s=>s.classList.toggle('hidden',s!==screens[k]));
+
+  /* IMAGE PREVIEW HANDLING */
+  $('imgInp').onchange = e => {
+    const file = e.target.files[0];
+    if(file){
+      const url = URL.createObjectURL(file);
+      $('imgPreview').src = url; $('imgPreview').classList.remove('hidden');
+      $('clearImg').classList.remove('hidden');
     }
-  });
+  };
+  $('clearImg').onclick = ()=>{
+    $('imgInp').value=''; $('imgPreview').src=''; $('imgPreview').classList.add('hidden'); $('clearImg').classList.add('hidden');
+  };
 
-  $('bulkArea').value = '';
+  /* LOGIN */
+  $('userBtn').onclick=()=>$('login').classList.remove('hidden');
+  $('closeLogin').onclick=()=>{$('login').classList.add('hidden');};
+  $('login').onclick=e=>{ if(e.target.id==='login')$('login').classList.add('hidden'); };
+
+  $('startBtn').onclick=()=>{
+    if(!$('nameInp').value.trim()) return alert('Nhập tên');
+    if(!qs.length) return alert('Hãy nhập câu hỏi trước!');
+    $('login').classList.add('hidden');
+    if(shuffleQ) shuffle(qs);
+    if(shuffleA) qs.forEach(q=>{
+      const p=q.options.map((o,i)=>({o,i})); shuffle(p);
+      q.options=p.map(x=>x.o);
+      q.correct=p.findIndex(x=>x.i===q.correct);
+    });
+    renderQuiz(); show('quiz');
+  };
+
+  /* SETTINGS */
+  $('gear').onclick=e=>{e.stopPropagation();$('settings').style.display=$('settings').style.display==='block'?'none':'block'};
+  document.addEventListener('click',e=>{if(!$('settings').contains(e.target)&&e.target!=$('gear'))$('settings').style.display='none'});
+  $('colorPick').oninput=e=>document.documentElement.style.setProperty('--primary',e.target.value);
+  $('toggleSQ').onclick=()=>{$('toggleSQ').textContent=`Xáo câu hỏi: ${shuffleQ=!shuffleQ?'Tắt':'Bật'}`;};
+  $('toggleSA').onclick=()=>{$('toggleSA').textContent=`Xáo đáp án: ${shuffleA=!shuffleA?'Tắt':'Bật'}`;};
+  $('toggleSpell').onclick=()=>{$('nameInp').spellcheck=(spell=!spell);$('toggleSpell').textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`;};
+  $('fsBtn').onclick=()=>{const c=$('card');if(!document.fullscreenElement){c.requestFullscreen();$('fsBtn').textContent='Thoát FS';}else{document.exitFullscreen();$('fsBtn').textContent='Toàn màn hình';}};
+
+  /* SETUP */
+  $('modeBtn').onclick=()=>{const m=$('manual').classList.toggle('hidden');$('bulk').classList.toggle('hidden');$('modeBtn').textContent=m?'Nhập nhanh':'Nhập thủ công';};
+
+  function resetManual(){
+    $('qInp').value='';[...'0123'].forEach(i=>$('a'+i).value='');$('correctSel').value=0;
+    $('imgInp').value='';$('imgPreview').classList.add('hidden');$('clearImg').classList.add('hidden'); editIndex=null;
+  }
+
+  $('addBtn').onclick=()=>{
+    const qText=$('qInp').value.trim();
+    const opts=[...'0123'].map(i=>$('a'+i).value.trim());
+    const ci=+$('correctSel').value;
+    if(!qText||opts.some(o=>!o)) return alert('Thiếu dữ liệu');
+    const imgSrc = $('imgPreview').src || null;
+    const questionObj = {question:qText,options:opts,correct:ci,image: imgSrc};
+    if(editIndex!=null){ qs[editIndex]=questionObj; }
+    else{ qs.push(questionObj); }
+    updateCount(); resetManual();
+  };
+
+  $('importBtn').onclick = () => {
+    qs=[]; const blocks=$('bulkArea').value.trim().split(/\n\s*\n/);
+    const optRx=/^\s*(\*)?\s*([A-D])\s*[\.\/:\)\-]?\s*(.+)$/i;
+    blocks.forEach(b=>{const lines=b.split('\n').map(l=>l.trim()).filter(Boolean);
+      if(lines.length<2) return; const question=lines[0].replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.\/:\)\-]?\s*/i,'').trim();
+      const opts=new Array(4); let correct=0;
+      lines.slice(1).forEach(line=>{const m=line.match(optRx);if(!m) return; const idx=m[2].toUpperCase().charCodeAt(0)-65; opts[idx]=m[3].trim(); if(m[1])correct=idx;});
+      if(opts.filter(Boolean).length===4) qs.push({question,options:opts,correct,image:null});
+    });
+    $('bulkArea').value=''; updateCount();
+  };
+
+  $('viewBtn').onclick=()=>{ renderView(); show('view'); };
+  $('backSetup').onclick=()=>show('setup');
+
+  const renderView=()=>{
+    const list=$('viewList'); list.innerHTML='';
+    qs.forEach((q,i)=>{
+      const card=document.createElement('div'); card.className='qcard';
+      let html=`<h3>Câu ${i+1}: ${q.question}</h3>`;
+      if(q.image) html+=`<img src="${q.image}" style="max-width:100%;margin:12px 0;border-radius:var(--radius)">`;
+      card.innerHTML=html;
+      const act=document.createElement('div'); act.className='actions';
+      const e=document.createElement('span'); e.textContent='✎'; e.onclick=()=>{
+        show('setup'); if($('manual').classList.contains('hidden')) $('modeBtn').click();
+        $('qInp').value=q.question; q.options.forEach((opt,j)=>$('a'+j).value=opt);
+        $('correctSel').value=q.correct;
+        if(q.image){ $('imgPreview').src=q.image; $('imgPreview').classList.remove('hidden'); $('clearImg').classList.remove('hidden'); }
+        editIndex=i; qs.splice(i,1);
+      };
+      const d=document.createElement('span'); d.textContent='✖'; d.onclick=()=>{qs.splice(i,1); renderView(); updateCount();};
+      act.append(e,d); card.appendChild(act);
+      list.appendChild(card);
+    });
+  };
+
+  /* QUIZ */
+  const renderQuiz=()=>{
+    const list=$('quizList'); list.innerHTML=''; score=0;
+    qs.forEach((q,i)=>{
+      const card=document.createElement('div'); card.className='qcard';
+      let html=`<h3>Câu ${i+1}: ${q.question}</h3>`;
+      if(q.image) html+=`<img src="${q.image}" style="max-width:100%;margin:12px 0;border-radius:var(--radius)">`;
+      card.innerHTML=html;
+      const wrap=document.createElement('div'); wrap.className='optwrap';
+      q.options.forEach((o,j)=>{
+        const op=document.createElement('div'); op.className='opt'; op.textContent=`${String.fromCharCode(65+j)}. ${o}`;
+        op.onclick=()=>{wrap.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));op.classList.add('selected');};
+        wrap.appendChild(op);
+      });
+      card.appendChild(wrap); list.appendChild(card);
+    });
+  };
+  $('submitBtn').onclick=()=>{
+    document.querySelectorAll('#quizList .qcard').forEach((c,i)=>{
+      const sel=c.querySelector('.opt.selected'); if(sel && sel.textContent.startsWith(String.fromCharCode(65+qs[i].correct)+'.')) score++;
+    });
+    $('resultTxt').textContent=`${$('nameInp').value}, bạn đúng ${score}/${qs.length} câu.`;
+    show('result');
+  };
+  $('retryBtn').onclick=()=>{ renderQuiz(); show('quiz'); };
+  $('homeBtn').onclick=()=>{ qs=[]; score=0; $('nameInp').value=''; updateCount(); resetManual(); show('setup'); };
+
+  /* INIT */
+  for(let i=0;i<4;i++){ const o=document.createElement('option'); o.value=i; o.textContent=String.fromCharCode(65+i); $('correctSel').appendChild(o);}  
   updateCount();
-};
-  $('viewBtn').onclick=()=>{show('view');renderView();};  
-  $('backSetup').onclick=()=>show('setup');  
-  
-  const renderView=()=>{  
-    $('viewList').innerHTML='';  
-    qs.forEach((q,i)=>{  
-      const card=document.createElement('div');  
-      card.className='qcard';  
-      card.innerHTML=`<h3>Câu ${i+1}: ${q.question}</h3>`;  
-      const act=document.createElement('div');  
-      act.className='actions';  
-      const e=document.createElement('span');  
-      e.textContent='✎';  
-      e.onclick=()=>{  
-        show('setup');  
-        $('manual').classList.remove('hidden');  
-        $('bulk').classList.add('hidden');  
-        $('modeBtn').textContent='Nhập nhanh';  
-        $('qInp').value=q.question;  
-        [...'0123'].forEach(j=>$('a'+j).value=q.options[j]);  
-        $('correctSel').value=q.correct;  
-        qs.splice(i,1);  
-        updateCount();  
-      };  
-      const d=document.createElement('span');  
-      d.textContent='✖';  
-      d.onclick=()=>{  
-        qs.splice(i,1);  
-        renderView();  
-        updateCount();  
-      };  
-      act.append(e,d);  
-      card.appendChild(act);  
-      $('viewList').appendChild(card);  
-    });  
-  };  
-  
-  /* ========= QUIZ ========= */  
-  const renderQuiz=()=>{  
-    $('quizList').innerHTML='';  
-    score=0;  
-    qs.forEach((q,i)=>{  
-      const card=document.createElement('div');  
-      card.className='qcard';  
-      card.innerHTML=`<h3>Câu ${i+1}: ${q.question}</h3>`;  
-      const wrap=document.createElement('div');  
-      wrap.className='optwrap';  
-      q.options.forEach((o,j)=>{  
-        const op=document.createElement('div');  
-        op.className='opt';  
-        op.textContent=`${String.fromCharCode(65+j)}. ${o}`;  
-        op.onclick=()=>{  
-          wrap.querySelectorAll('.opt').forEach(x=>x.classList.remove('selected'));  
-          op.classList.add('selected');  
-        };  
-        wrap.appendChild(op);  
-      });  
-      card.appendChild(wrap);  
-      $('quizList').appendChild(card);  
-    });  
-  };  
-  $('submitBtn').onclick=()=>{  
-    document.querySelectorAll('#quizList .qcard').forEach((c,i)=>{  
-      const sel=c.querySelector('.opt.selected');  
-      if(sel&&sel.textContent.startsWith(String.fromCharCode(65+qs[i].correct)+'.'))score++;  
-    });  
-    $('resultTxt').textContent=`${$('nameInp').value}, bạn đúng ${score}/${qs.length} câu.`;  
-    show('result');  
-  };  
-  $('retryBtn').onclick=()=>{renderQuiz();show('quiz');};  
-  $('homeBtn').onclick=()=>{  
-    qs=[];  
-    score=0;  
-    $('nameInp').value='';  
-    updateCount();  
-    show('setup');  
-  };  
-  
-  /* INIT */  
-  for(let i=0;i<4;i++){  
-    const o=document.createElement('option');  
-    o.value=i;  
-    o.textContent=String.fromCharCode(65+i);  
-    $('correctSel').appendChild(o);  
-  }  
-  updateCount();  
-});  
-</script>  </body>  
+});
+</script></body>
 </html>
