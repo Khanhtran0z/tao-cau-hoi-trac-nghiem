@@ -186,26 +186,39 @@ document.addEventListener('DOMContentLoaded',()=>{
     [...'0123'].forEach(i=>$('a'+i).value='');  
     updateCount();  
   };  
-  $('importBtn').onclick=()=>{  
-    qs=[];  
-    $('bulkArea').value.split(/\n\s*\n/).forEach(b=>{  
-      const l=b.split(/\n/).map(x=>x.trim()).filter(Boolean);  
-      if(l.length<2)return;  
-      const q=l[0].replace(/^Câu\s*\d+:/,'').trim();  
-      const opts=[],ci=l.slice(1).reduce((c,line)=>{  
-        const m=line.match(/\*?([A-D])\.\s*(.+)/);  
-        if(m){  
-          const idx=m[1].charCodeAt(0)-65;  
-          opts[idx]=m[2];  
-          return line.startsWith('*')?idx:c;  
-        }  
-        return c;  
-      },0);  
-      if(opts.length===4)qs.push({question:q,options:opts,correct:ci});  
-    });  
-    $('bulkArea').value='';  
-    updateCount();  
-  };  
+$('importBtn').onclick = () => {
+  qs = [];
+  const blocks = $('bulkArea').value.trim().split(/\n\s*\n/);
+  const optRx = /^\s*(\*)?\s*([A-D])\s*[\.\/\):\-]?\s*(.+)$/i;
+
+  blocks.forEach(block => {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length < 2) return;
+
+    // Loại bỏ “Câu 1:”, “1)”, “1.”, “- …”
+    const question = lines[0]
+      .replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.\)\-]?\s*/i, '')
+      .trim();
+
+    const opts = new Array(4);
+    let correct = 0;
+
+    lines.slice(1).forEach(line => {
+      const m = line.match(optRx);
+      if (!m) return;
+      const idx = m[2].toUpperCase().charCodeAt(0) - 65;
+      opts[idx] = m[3].trim();
+      if (m[1] === '*') correct = idx;
+    });
+
+    if (opts.filter(Boolean).length === 4) {
+      qs.push({ question, options: opts, correct });
+    }
+  });
+
+  $('bulkArea').value = '';
+  updateCount();
+};
   $('viewBtn').onclick=()=>{show('view');renderView();};  
   $('backSetup').onclick=()=>show('setup');  
   
