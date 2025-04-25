@@ -113,14 +113,23 @@
     </div>
 
     <!-- RESULT -->
-    <div id="result" class="screen hidden">
-      <h2>Kết quả</h2>
-      <p id="resultTxt" style="font-size:1.2rem;font-weight:600"></p>
-      <div style="margin-top:14px;display:flex;gap:12px">
-        <button id="retryBtn" class="btn" style="flex:1" type="button">Làm lại</button>
-        <button id="homeBtn" class="btn" style="flex:1;background:#64748b" type="button">Trang chủ</button>
-      </div>
-    </div>
+    <!-- RESULT -->
+<div id="result" class="screen hidden">
+  <h2>Kết quả</h2>
+  <p id="resultTxt" style="font-size:1.2rem;font-weight:600"></p>
+  <div style="margin-top:14px;display:flex;gap:12px">
+    <button id="retryBtn" class="btn" style="flex:1" type="button">Làm lại</button>
+    <button id="homeBtn" class="btn" style="flex:1;background:#64748b" type="button">Trang chủ</button>
+    <button id="viewAnswerBtn" class="btn" style="flex:1;background:#38bdf8" type="button">Xem đáp án</button>
+  </div>
+</div>
+
+<!-- ANSWER REVIEW -->
+<div id="answerReview" class="screen hidden">
+  <h2>Đáp án chi tiết</h2>
+  <div id="answerList"></div>
+  <button id="backResultBtn" class="btn" style="margin-top:14px;background:#64748b" type="button">Quay lại kết quả</button>
+</div>
 
     <!-- SETTINGS -->
     <div id="settings">
