@@ -339,11 +339,57 @@
       card.appendChild(wrap); list.appendChild(card);
     });
   }
-  $('submitBtn').onclick=function(){
-    document.querySelectorAll('#quizList .qcard').forEach((c,i)=>{
-      const sel=c.querySelector('.opt.selected'); if(sel && sel.textContent.startsWith(String.fromCharCode(65+qs[i].correct)+'.')) score++;
+  $('submitBtn').onclick = function() {
+    // 1. Thu thập câu trả lời của người chơi
+    const userAnswers = [];
+    document.querySelectorAll('#quizList .qcard').forEach((card, i) => {
+      const sel = card.querySelector('.opt.selected');
+      const idx = sel ? sel.textContent.charCodeAt(0) - 65 : null;
+      userAnswers.push(idx);
     });
-    $('resultTxt').textContent=`${$('nameInp').value}, bạn đúng ${score}/${qs.length} câu.`;
+
+    // 2. Tính điểm
+    score = 0;
+    userAnswers.forEach((ans, i) => {
+      if (ans === qs[i].correct) score++;
+    });
+
+    // 3. Vô hiệu hoá chọn lại và xóa class cũ
+    document.querySelectorAll('#quizList .opt').forEach(opt => {
+      opt.onclick = null;
+      opt.classList.remove('correct','wrong');
+    });
+
+    // 4. Gắn class .correct / .wrong cho từng đáp án
+    document.querySelectorAll('#quizList .qcard').forEach((card, i) => {
+      const opts = card.querySelectorAll('.opt');
+      opts.forEach((opt, j) => {
+        if (j === qs[i].correct) {
+          opt.classList.add('correct');
+        }
+        if (userAnswers[i] === j && j !== qs[i].correct) {
+          opt.classList.add('wrong');
+        }
+      });
+    });
+
+    // 5. Hiển thị kết quả và chi tiết
+    let detailHTML = userAnswers.map((ans, i) => {
+      const correctIdx = qs[i].correct;
+      const yourText = ans != null
+        ? `${String.fromCharCode(65+ans)}. ${qs[i].options[ans]}`
+        : 'Không chọn';
+      const corrText = `${String.fromCharCode(65+correctIdx)}. ${qs[i].options[correctIdx]}`;
+      return `<p>Câu ${i+1}: <strong>Đáp của bạn:</strong> ${yourText} → <strong>Đáp đúng:</strong> ${corrText}</p>`;
+    }).join('');
+
+    $('resultTxt').innerHTML = `
+      ${$('nameInp').value}, bạn đúng ${score}/${qs.length} câu.
+      <div style="margin-top:12px;line-height:1.5em">
+        ${detailHTML}
+      </div>
+    `;
+
     show('result');
   };
   $('retryBtn').onclick=function(){ renderQuiz(); show('quiz'); };
