@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Trắc Nghiệm - Level & Achievements</title>
+  <!-- Bulma CSS for quick, modern styling (MIT license) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <!-- Font Awesome for icons (MIT license) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-bQ89v0WffekG+eK4eJHyQ0Za78pVgUUCvyHeEIUuEF76HgF4f36vJ2L9SgsMSSUvw71S3+Uq3ClvLS+x3rtmqg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body { background-color: #f5f5f5; }
+    #app { margin-top: 2rem; }
+    .card-header { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; }
+    .hidden { display: none !important; }
+    .achievement-list li { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <!-- Header -->
+    <div class="card">
+      <header class="card-header">
+        <p class="card-header-title is-centered">
+          Hệ Thống Trắc Nghiệm
+        </p>
+      </header>
+    </div>
+
+    <!-- Setup Screen -->
+    <div id="setup" class="box mt-4">
+      <h2 class="title is-4">Tạo Câu Hỏi</h2>
+      <div class="field">
+        <label class="label">Câu hỏi</label>
+        <div class="control">
+          <input id="qInp" class="input" type="text" placeholder="Nhập câu hỏi...">
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label">A</label>
+            <input id="a0" class="input" type="text" placeholder="Đáp án A">
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <label class="label">B</label>
+            <input id="a1" class="input" type="text" placeholder="Đáp án B">
+          </div>
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column">
+          <div class="field">
+            <label class="label">C</label>
+            <input id="a2" class="input" type="text" placeholder="Đáp án C">
+          </div>
+        </div>
+        <div class="column">
+          <div class="field">
+            <label class="label">D</label>
+            <input id="a3" class="input" type="text" placeholder="Đáp án D">
+          </div>
+        </div>
+      </div>
+      <div class="field is-horizontal">
+        <div class="field-body">
+          <div class="field">
+            <label class="label">Đáp án đúng</label>
+            <div class="control">
+              <div class="select is-fullwidth">
+                <select id="correctSel">
+                  <option value="0">A</option>
+                  <option value="1">B</option>
+                  <option value="2">C</option>
+                  <option value="3">D</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Mức độ khó</label>
+            <div class="control">
+              <div class="select is-fullwidth">
+                <select id="levelSel">
+                  <option value="easy">Dễ</option>
+                  <option value="medium">Trung bình</option>
+                  <option value="hard">Khó</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Ảnh minh họa (tùy chọn)</label>
+        <div class="file has-name is-fullwidth">
+          <label class="file-label">
+            <input class="file-input" type="file" id="imgInp">
+            <span class="file-cta"><span class="file-icon"><i class="fas fa-upload"></i></span><span class="file-label">Chọn ảnh…</span></span>
+            <span class="file-name" id="imgName">Chưa chọn ảnh</span>
+          </label>
+        </div>
+        <figure class="image is-128x128 mt-2 hidden" id="imgPreviewWrapper">
+          <img id="imgPreview" src="" alt="Xem trước ảnh">
+        </figure>
+        <button id="clearImg" class="button is-danger is-light is-small mt-2 hidden">Xóa ảnh</button>
+      </div>
+      <div class="field is-grouped">
+        <div class="control">
+          <button id="addBtn" class="button is-primary">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>Thêm câu hỏi</span>
+          </button>
+        </div>
+        <div class="control">
+          <button id="viewBtn" class="button is-link is-light">Xem danh sách</button>
+        </div>
+        <div class="control">
+          <button id="startBtn" class="button is-success">Bắt đầu làm bài</button>
+        </div>
+      </div>
+      <p id="count" class="has-text-grey">0 câu hỏi</p>
+    </div>
+
+    <!-- View Screen -->
+    <div id="view" class="box mt-4 hidden">
+      <h2 class="title is-4">Danh sách câu hỏi</h2>
+      <div id="viewList"></div>
+      <div class="field is-grouped mt-4">
+        <div class="control">
+          <button id="backSetup" class="button is-light">Quay lại</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz" class="box mt-4 hidden">
+      <h2 class="title is-4">Làm bài</h2>
+      <div id="quizList"></div>
+      <div class="field is-grouped mt-4">
+        <div class="control">
+          <button id="submitBtn" class="button is-primary">Nộp bài</button>
+        </div>
+        <div class="control">
+          <button id="cancelQuiz" class="button is-light">Hủy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result" class="box mt-4 hidden">
+      <h2 class="title is-4">Kết quả</h2>
+      <div id="resultTxt" class="content"></div>
+      <div id="achievementsSection" class="content">
+        <h3 class="title is-5">Thành tựu đạt được</h3>
+        <ul id="achievementList" class="achievement-list"></ul>
+      </div>
+      <div class="field is-grouped mt-4">
+        <div class="control">
+          <button id="retryBtn" class="button is-primary is-light">Làm lại</button>
+        </div>
+        <div class="control">
+          <button id="homeBtn" class="button is-link is-light">Trang chủ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Helper to get element by id
+    const $ = id => document.getElementById(id);
+
+    let qs = [];
+    let achievements = [];
+    let score = 0;
+    const LS_KEY = 'tao-cau-hoi-trac-nghiem-qs';
+    const ACH_KEY = 'tao-cau-hoi-trac-nghiem-achievements';
+
+    // Load questions and achievements from localStorage
+    function loadFromStorage() {
+      const data = localStorage.getItem(LS_KEY);
+      if (data) {
+        try {
+          qs = JSON.parse(data);
+        } catch (e) {}
+      }
+      const achData = localStorage.getItem(ACH_KEY);
+      if (achData) {
+        try {
+          achievements = JSON.parse(achData);
+        } catch (e) {}
+      }
+    }
+
+    function saveQuestions() {
+      localStorage.setItem(LS_KEY, JSON.stringify(qs));
+    }
+    function saveAchievements() {
+      localStorage.setItem(ACH_KEY, JSON.stringify(achievements));
+    }
+
+    // Update question count
+    function updateCount() {
+      $('count').textContent = `${qs.length} câu hỏi`;
+    }
+
+    // Image preview handling
+    $('imgInp').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        $('imgPreview').src = url;
+        $('imgName').textContent = file.name;
+        $('imgPreviewWrapper').classList.remove('hidden');
+        $('clearImg').classList.remove('hidden');
+      }
+    });
+    $('clearImg').addEventListener('click', function () {
+      $('imgInp').value = '';
+      $('imgName').textContent = 'Chưa chọn ảnh';
+      $('imgPreview').src = '';
+      $('imgPreviewWrapper').classList.add('hidden');
+      $('clearImg').classList.add('hidden');
+    });
+
+    // Add question
+    $('addBtn').addEventListener('click', function () {
+      const question = $('qInp').value.trim();
+      const opts = ['a0','a1','a2','a3'].map(id => $(id).value.trim());
+      const correct = parseInt($('correctSel').value);
+      const level = $('levelSel').value;
+      const imgSrc = $('imgPreview').src || null;
+      if (!question || opts.some(o => !o)) {
+        alert('Thiếu dữ liệu');
+        return;
+      }
+      qs.push({ question, options: opts, correct, level, image: imgSrc });
+      saveQuestions();
+      updateCount();
+      // Reset fields
+      $('qInp').value = '';
+      opts.forEach((_, i) => { $('a' + i).value = ''; });
+      $('correctSel').value = 0;
+      $('levelSel').value = 'easy';
+      $('imgInp').value = '';
+      $('imgName').textContent = 'Chưa chọn ảnh';
+      $('imgPreview').src = '';
+      $('imgPreviewWrapper').classList.add('hidden');
+      $('clearImg').classList.add('hidden');
+    });
+
+    // View questions
+    $('viewBtn').addEventListener('click', function () {
+      renderView();
+      showScreen('view');
+    });
+
+    function renderView() {
+      const list = $('viewList');
+      list.innerHTML = '';
+      qs.forEach((q, i) => {
+        const card = document.createElement('div');
+        card.className = 'card mb-3';
+        const cardContent = document.createElement('div');
+        cardContent.className = 'card-content';
+        const media = document.createElement('div');
+        media.className = 'media';
+        const mediaContent = document.createElement('div');
+        mediaContent.className = 'media-content';
+        const title = document.createElement('p');
+        title.className = 'title is-6';
+        title.textContent = `Câu ${i + 1}: ${q.question}`;
+        const subtitle = document.createElement('p');
+        subtitle.className = 'subtitle is-7';
+        subtitle.textContent = `Mức độ: ${q.level}`;
+        mediaContent.appendChild(title);
+        mediaContent.appendChild(subtitle);
+        media.appendChild(mediaContent);
+        cardContent.appendChild(media);
+        if (q.image) {
+          const figure = document.createElement('figure');
+          figure.className = 'image is-128x128 mt-2';
+          const img = document.createElement('img');
+          img.src = q.image;
+          img.style.borderRadius = '8px';
+          figure.appendChild(img);
+          cardContent.appendChild(figure);
+        }
+        // action buttons
+        const buttons = document.createElement('div');
+        buttons.className = 'mt-2';
+        const editBtn = document.createElement('button');
+        editBtn.className = 'button is-small is-warning mr-2';
+        editBtn.innerHTML = '<span class="icon is-small"><i class="fas fa-edit"></i></span>';
+        editBtn.addEventListener('click', function () {
+          // Load question into form for editing
+          showScreen('setup');
+          $('qInp').value = q.question;
+          q.options.forEach((o, j) => { $('a' + j).value = o; });
+          $('correctSel').value = q.correct;
+          $('levelSel').value = q.level;
+          if (q.image) {
+            $('imgPreview').src = q.image;
+            $('imgPreviewWrapper').classList.remove('hidden');
+            $('clearImg').classList.remove('hidden');
+          }
+          // Remove this question from list
+          qs.splice(i, 1);
+          saveQuestions();
+          updateCount();
+        });
+        const delBtn = document.createElement('button');
+        delBtn.className = 'button is-small is-danger';
+        delBtn.innerHTML = '<span class="icon is-small"><i class="fas fa-trash"></i></span>';
+        delBtn.addEventListener('click', function () {
+          if (confirm('Bạn có chắc muốn xóa câu hỏi này?')) {
+            qs.splice(i, 1);
+            saveQuestions();
+            renderView();
+            updateCount();
+          }
+        });
+        buttons.appendChild(editBtn);
+        buttons.appendChild(delBtn);
+        cardContent.appendChild(buttons);
+        card.appendChild(cardContent);
+        list.appendChild(card);
+      });
+    }
+
+    $('backSetup').addEventListener('click', function () {
+      showScreen('setup');
+    });
+
+    // Show a specific screen and hide others
+    function showScreen(name) {
+      ['setup', 'view', 'quiz', 'result'].forEach(id => {
+        $(id).classList.toggle('hidden', id !== name);
+      });
+    }
+
+    // Start quiz
+    $('startBtn').addEventListener('click', function () {
+      if (!qs.length) {
+        alert('Hãy nhập câu hỏi trước!');
+        return;
+      }
+      score = 0;
+      renderQuiz();
+      showScreen('quiz');
+    });
+
+    function renderQuiz() {
+      const list = $('quizList');
+      list.innerHTML = '';
+      qs.forEach((q, i) => {
+        const card = document.createElement('div');
+        card.className = 'box';
+        const title = document.createElement('h4');
+        title.className = 'title is-6';
+        title.textContent = `Câu ${i + 1}: ${q.question}`;
+        card.appendChild(title);
+        if (q.image) {
+          const figure = document.createElement('figure');
+          figure.className = 'image is-128x128 mb-2';
+          const img = document.createElement('img');
+          img.src = q.image;
+          img.style.borderRadius = '8px';
+          figure.appendChild(img);
+          card.appendChild(figure);
+        }
+        // Options
+        q.options.forEach((o, j) => {
+          const label = document.createElement('label');
+          label.className = 'radio';
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'question' + i;
+          radio.value = j;
+          label.appendChild(radio);
+          label.appendChild(document.createTextNode(' ' + String.fromCharCode(65 + j) + '. ' + o));
+          const div = document.createElement('div');
+          div.className = 'field';
+          div.appendChild(label);
+          card.appendChild(div);
+        });
+        list.appendChild(card);
+      });
+    }
+
+    $('submitBtn').addEventListener('click', function () {
+      // Collect answers
+      const userAnswers = [];
+      qs.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="question${i}"]:checked`);
+        if (selected) {
+          userAnswers.push(parseInt(selected.value));
+        } else {
+          userAnswers.push(null);
+        }
+      });
+      // Calculate score
+      score = 0;
+      userAnswers.forEach((ans, i) => {
+        if (ans !== null && ans === qs[i].correct) score++;
+      });
+      renderResult();
+      showScreen('result');
+    });
+    // Cancel quiz
+    $('cancelQuiz').addEventListener('click', function () {
+      showScreen('setup');
+    });
+
+    function renderResult() {
+      const total = qs.length;
+      const pct = total ? Math.round((score / total) * 100) : 0;
+      // Determine level reached based on percentage
+      let levelReached;
+      if (pct >= 80) levelReached = 'Master';
+      else if (pct >= 50) levelReached = 'Advanced';
+      else levelReached = 'Beginner';
+      $('resultTxt').innerHTML = `<p>Bạn trả lời đúng ${score}/${total} câu (${pct}%).</p><p>Level đạt được: <strong>${levelReached}</strong></p>`;
+      const newAch = checkAchievements(score, total);
+      renderAchievements(newAch);
+    }
+
+    // Achievements logic
+    function checkAchievements(score, total) {
+      const unlocked = [];
+      // First correct answer
+      if (score > 0 && !achievements.includes('rookie')) {
+        achievements.push('rookie');
+        unlocked.push('rookie');
+      }
+      // Perfect score
+      if (score === total && total > 0 && !achievements.includes('perfect')) {
+        achievements.push('perfect');
+        unlocked.push('perfect');
+      }
+      // Ten questions created
+      if (qs.length >= 10 && !achievements.includes('creator')) {
+        achievements.push('creator');
+        unlocked.push('creator');
+      }
+      // Consistent learner: attempted quiz 3 times (use localStorage count)
+      let attempt = parseInt(localStorage.getItem('attempts') || '0');
+      attempt++;
+      localStorage.setItem('attempts', attempt);
+      if (attempt >= 3 && !achievements.includes('persistent')) {
+        achievements.push('persistent');
+        unlocked.push('persistent');
+      }
+      saveAchievements();
+      return unlocked;
+    }
+    function renderAchievements(newAch) {
+      const list = $('achievementList');
+      list.innerHTML = '';
+      achievements.forEach(a => {
+        const li = document.createElement('li');
+        let text;
+        let iconClass;
+        switch (a) {
+          case 'rookie':
+            text = 'Trả lời đúng câu đầu tiên';
+            iconClass = 'fa-star';
+            break;
+          case 'perfect':
+            text = 'Hoàn thành bài với điểm tuyệt đối';
+            iconClass = 'fa-crown';
+            break;
+          case 'creator':
+            text = 'Tạo ít nhất 10 câu hỏi';
+            iconClass = 'fa-lightbulb';
+            break;
+          case 'persistent':
+            text = 'Làm bài 3 lần';
+            iconClass = 'fa-rocket';
+            break;
+          default:
+            text = a;
+            iconClass = 'fa-award';
+        }
+        li.innerHTML = `<span class="icon has-text-primary"><i class="fas ${iconClass}"></i></span> ${text}`;
+        list.appendChild(li);
+      });
+    }
+
+    $('retryBtn').addEventListener('click', function () {
+      renderQuiz();
+      showScreen('quiz');
+    });
+    $('homeBtn').addEventListener('click', function () {
+      showScreen('setup');
+    });
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', function () {
+      loadFromStorage();
+      updateCount();
+    });
+  </script>
+</body>
+</html>
