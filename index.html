@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QuizApp — Trắc nghiệm & Tự luận (Timer + Level)</title>
+  <title>QuizApp </title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     :root{
@@ -90,7 +90,7 @@
   <div id="card" class="card">
     <header>
       <button id="tipsBtn" class="iconbtn" title="Kinh nghiệm">❓</button>
-      <h1 class="title">QuizApp <span class="chip">Tự luận + Trắc nghiệm</span></h1>
+      <h1 class="title">QuizApp <span class="chip"> Khánh Trần</span></h1>
       <button id="gear" class="iconbtn" title="Cài đặt">⚙️</button>
       <button id="userBtn" class="iconbtn" title="Nhập tên">👤</button>
     </header>
@@ -127,6 +127,7 @@
       <button id="toggleSQ" class="btn secondary" type="button" style="width:100%;margin-top:6px">Xáo câu hỏi: Bật</button>
       <button id="toggleSA" class="btn secondary" type="button" style="width:100%;margin-top:6px">Xáo đáp án: Bật</button>
       <button id="toggleSpell" class="btn secondary" type="button" style="width:100%;margin-top:6px">Spellcheck: Bật</button>
+      <button id="fsBtn" class="btn secondary" type="button" style="width:100%;margin-top:6px">Toàn màn hình</button>
       <label style="display:block;margin-top:8px">Màu chủ đạo</label>
       <input id="colorPick" type="color" value="#6366f1" style="width:100%">
 
@@ -294,6 +295,32 @@ D. 6"></textarea>
     }, 1000);
   }
 
+  // ===== Fullscreen helpers =====
+  function toggleFullscreen(){
+    const el = document.documentElement; // full page
+    if (!document.fullscreenElement &&
+        !document.webkitFullscreenElement &&
+        !document.mozFullScreenElement &&
+        !document.msFullscreenElement) {
+      (el.requestFullscreen ||
+       el.webkitRequestFullscreen ||
+       el.mozRequestFullScreen ||
+       el.msRequestFullscreen).call(el);
+    } else {
+      (document.exitFullscreen ||
+       document.webkitExitFullscreen ||
+       document.mozCancelFullScreen ||
+       document.msExitFullscreen).call(document);
+    }
+  }
+  function syncFsLabel(){
+    const on = !!(document.fullscreenElement || document.webkitFullscreenElement ||
+                  document.mozFullScreenElement || document.msFullscreenElement);
+    if ($('fsBtn')) $('fsBtn').textContent = on ? 'Thoát toàn màn hình' : 'Toàn màn hình';
+  }
+  ['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange']
+    .forEach(ev => document.addEventListener(ev, syncFsLabel));
+
   // ===== General helpers =====
   function saveToStorage(){ localStorage.setItem(LS_KEY, JSON.stringify(qs)); }
   function loadFromStorage(){ try{ const data=JSON.parse(localStorage.getItem(LS_KEY)); if(Array.isArray(data)) qs=data; }catch{} }
@@ -313,6 +340,8 @@ D. 6"></textarea>
     const prof=loadProfile();
     if(prof.name){ $('nameInp').value=prof.name; }
     updateLevelChip(prof.xp);
+    // initial FS label
+    syncFsLabel();
   });
 
   // ===== Settings toggle =====
@@ -324,6 +353,7 @@ D. 6"></textarea>
   $('toggleSpell').onclick=function(){ spell=!spell; this.textContent=`Spellcheck: ${spell?'Bật':'Tắt'}`; };
   $('timerEnable').onchange=function(){ timerOn=this.checked; };
   $('timerMinutes').oninput=function(){ const v=+this.value||15; timerMin=Math.max(1, v); };
+  $('fsBtn').onclick = toggleFullscreen;
 
   // ===== Tips & Login =====
   $('tipsBtn').onclick=()=> $('tips').classList.add('show');
