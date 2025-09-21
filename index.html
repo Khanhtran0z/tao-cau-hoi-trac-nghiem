@@ -90,7 +90,7 @@
   <div id="card" class="card">
     <header>
       <button id="tipsBtn" class="iconbtn" title="Kinh nghiệm">❓</button>
-      <h1 class="title">QuizApp <span class="chip"> Khánh Trần</span></h1>
+      <h1 class="title">QuizApp <span class="chip">Khánh Trần</span></h1>
       <button id="gear" class="iconbtn" title="Cài đặt">⚙️</button>
       <button id="userBtn" class="iconbtn" title="Nhập tên">👤</button>
     </header>
@@ -270,7 +270,7 @@ D. 6"></textarea>
     'ý':'y','ỳ':'y','ỷ':'y','ỹ':'y','ỵ':'y'
   };
   function undiac(s){ return (s||'').toLowerCase().split('').map(ch=>DIAC[ch]||ch).join(''); }
-  const normalize = s => undiac(s).replace(/[^a-z0-9\\s]/g,' ').replace(/\\s+/g,' ').trim();
+  const normalize = s => undiac(s).replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
   const tokenize = s => normalize(s).split(' ').filter(Boolean);
   function jaccard(a,b){ const A=new Set(a),B=new Set(b); const inter=[...A].filter(x=>B.has(x)).length; const union=A.size+B.size-inter; return union? inter/union:0; }
 
@@ -407,19 +407,31 @@ D. 6"></textarea>
     saveToStorage(); updateCount();
   };
 
-  // ===== Bulk import (MCQ) =====
+  // ===== Bulk import (MCQ only) — FIXED =====
   $('importBtn').onclick=function(){
-    qs=[]; const blocks=$('bulkArea').value.trim().split(/\\n\\s*\\n/);
-    const optRx=/^\\s*(\\*)?\\s*([A-D])\\s*[\\.:\\/\\)\\-]?\\s*(.+)$/i;
+    qs=[];
+    const blocks=$('bulkArea').value.trim().split(/\n\s*\n/); // split by blank line
+    const optRx=/^\s*(\*)?\s*([A-D])\s*[\.:\/\)\-]?\s*(.+)$/i;
     blocks.forEach(b=>{
-      const lines=b.split('\\n').map(l=>l.trim()).filter(Boolean);
+      const lines=b.split('\n').map(l=>l.trim()).filter(Boolean);
       if(lines.length<2) return;
-      const question=lines[0].replace(/^(?:-?\\s*)?(?:Câu)?\\s*\\d+\\s*[:\\.:\\/\\)\\-]?\\s*/i,'').trim();
+      const question=lines[0]
+        .replace(/^(?:-?\s*)?(?:Câu)?\s*\d+\s*[:\.:\/\)\-]?\s*/i,'')
+        .trim();
       const opts=new Array(4); let correct=0;
-      lines.slice(1).forEach(line=>{ const m=line.match(optRx); if(!m) return; const idx=m[2].toUpperCase().charCodeAt(0)-65; opts[idx]=m[3].trim(); if(m[1]) correct=idx; });
-      if(opts.filter(Boolean).length===4) qs.push({type:'mcq',question,options:opts,correct,image:null});
+      lines.slice(1).forEach(line=>{
+        const m=line.match(optRx); if(!m) return;
+        const idx=m[2].toUpperCase().charCodeAt(0)-65;
+        opts[idx]=m[3].trim();
+        if(m[1]) correct=idx;
+      });
+      if(opts.filter(Boolean).length===4){
+        qs.push({type:'mcq',question,options:opts,correct,image:null});
+      }
     });
-    saveToStorage(); $('bulkArea').value=''; updateCount();
+    saveToStorage();
+    $('bulkArea').value='';
+    updateCount();
   };
 
   // ===== View list =====
